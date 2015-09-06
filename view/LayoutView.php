@@ -18,7 +18,7 @@ class LayoutView {
     }
 
 
-    public function render($isLoggedIn, LoginView $loginViewObj, DateTimeView $dateTimeViewObj) {
+    public function render($isLoggedIn, LoginLayoutView $loginViewObj, DateTimeView $dateTimeViewObj) {
 
         // Render page header
         $this->renderHeader();

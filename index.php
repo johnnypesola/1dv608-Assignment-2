@@ -10,7 +10,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 
 // Create objects of views
-$loginViewObj = new \view\LoginView();
+$loginViewObj = new \view\LoginLayoutView();
 $dateTimeViewObj = new \view\DateTimeView();
 $layoutViewObj = new \view\LayoutView('Login Example', 'Assignment 2');
 

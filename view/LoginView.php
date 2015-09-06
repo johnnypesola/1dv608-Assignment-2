@@ -2,7 +2,7 @@
 
 namespace view;
 
-class LoginView {
+class LoginLayoutView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
 	private static $name = 'LoginView::UserName';
@@ -11,8 +11,6 @@ class LoginView {
 	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
-
-	
 
 	/**
 	 * Create HTTP response
@@ -32,11 +30,11 @@ class LoginView {
 	/**
 	* Generate HTML code on the output buffer for the logout button
 	* @param $message, String output message
-	* @return  void, BUT writes to standard output!
+	* @return  string
 	*/
 	private function generateLogoutButtonHTML($message) {
 		return '
-			<form  method="post" >
+			<form method="post" >
 				<p id="' . self::$messageId . '">' . $message .'</p>
 				<input type="submit" name="' . self::$logout . '" value="logout"/>
 			</form>
@@ -46,7 +44,7 @@ class LoginView {
 	/**
 	* Generate HTML code on the output buffer for the logout button
 	* @param $message, String output message
-	* @return  void, BUT writes to standard output!
+	* @return  string
 	*/
 	private function generateLoginFormHTML($message) {
 		return '
