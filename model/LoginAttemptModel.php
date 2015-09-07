@@ -14,9 +14,15 @@ class LoginAttemptModel {
     private $username;
     private $password;
     private $timestamp;
+    private $Application;
 
     // Constructor
     public function __construct($username, $password) {
+
+        // Set last login attempt
+        \model\UsersModelDAL::setUsernameLastLoginAttempt($username);
+
+        // Set username, password and timestamp
         $this->setUserName($username);
         $this->setPassword($password);
         $this->timestamp = time();

@@ -14,7 +14,13 @@ class LoginView {
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 
+    private $Application;
 
+    public function __construct(\App $Application) {
+
+        // Get parent application object
+        $this->Application = $Application;
+    }
 
 	/**
 	 * Create HTTP response
@@ -23,22 +29,19 @@ class LoginView {
 	 *
 	 * @return  void BUT writes to standard output and cookies!
 	 */
-	public function response() {
-		$message = '';
-		
+	public function loginResponse() {
+        // Init vars
+        $message = '';
+
+        // Get error messages if there are any.
+        if($this->Application->errorModel->hasErrors()) {
+            $message = $this->Application->errorModel->getLastErrorMessage();
+        }
+
 		$response = $this->generateLoginFormHTML($message);
 		//$response .= $this->generateLogoutButtonHTML($message);
 		return $response;
 	}
-
-    public function getLoginAttempt() {
-        // If username and password is posted
-        if(isset($_POST[self::$username], $_POST[self::$password])) {
-
-            // Create and return a LoginAttempt model object.
-            return new LoginAttemptModel($_POST[self::$username], $_POST[self::$password]);
-        }
-    }
 
 	/**
 	* Generate HTML code on the output buffer for the logout button
@@ -60,14 +63,12 @@ class LoginView {
 	* @return  string
 	*/
 	private function generateLoginFormHTML($message) {
-		return '
-			<form method="post">
+		return '<form method=\'post\'>
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$messageId . '">' . $message . '</p>
-					
 					<label for="' . self::$username . '">Username :</label>
-					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="" />
+					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="' . \model\UsersModelDAL::getUsernameLastLoginAttempt() . '" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />

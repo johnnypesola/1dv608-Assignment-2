@@ -12,12 +12,24 @@ namespace model;
 class UsersModelDAL {
 
     // Init variables
+    private static $usernameLastLoginAttempt = "";
     private static $SESSION_COOKIE_NAME = "user_logged_in";
     private static $VALID_USERS = [
         "admin" => "secretpassword",
         "anotheradmin" => "anotherpassword"
     ];
 
+
+    // Getters and setters
+    public static function getUsernameLastLoginAttempt() {
+        return self::$usernameLastLoginAttempt;
+    }
+
+    public static function setUsernameLastLoginAttempt($value) {
+        self::$usernameLastLoginAttempt = $value;
+    }
+
+    // Methods
     public static function getUsers() {
         // Init vars
         $usersToReturnArray = array();
@@ -55,4 +67,5 @@ class UsersModelDAL {
 
         return isset($_SESSION[self::$SESSION_COOKIE_NAME]);
     }
+
 } 

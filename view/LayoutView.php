@@ -26,29 +26,27 @@ class LayoutView {
         // Render text about if the user is logged in or not
         $this->renderIsLoggedIn(\model\UsersModelDAL::isUserLoggedIn());
 
-        echo '
-              <div class="container">
-                  ' . $loginViewObj->response() . '
+        echo '<div class="container" >
+                  ' . $loginViewObj->loginResponse() . '
 
                   ' . $dateTimeViewObj->show() . '
               </div>
-        ';
+';
 
         // Render page footer
         $this->renderFooter();
     }
 
     private function renderHeader() {
-        echo '
-            <!DOCTYPE html>
-                  <html>
-                    <head>
-                      <meta charset="' . $this->pageCharset . '">
-                      <title>' . $this->pageTitle . '</title>
-                    </head>
-                    <body>
-                      <h1>' . $this->pageHeader . '</h1>
-        ';
+        echo '<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="' . $this->pageCharset . '">
+    <title>' . $this->pageTitle . '</title>
+  </head>
+  <body>
+    <h1>' . $this->pageHeader . '</h1>
+    ';
     }
 
     private function renderFooter() {

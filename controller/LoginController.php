@@ -13,41 +13,88 @@ use model\UserModel;
 
 class LoginController {
 
-    // Init variables
-    private $loginViewObj;
+// Init variables
+    private $Application;
     private $userObj;
 
-    // Constructor
-    public function __construct(\view\LoginView $loginViewObj) {
-        $this->loginViewObj = $loginViewObj;
+    private static $usernameInputFieldName = "LoginView::UserName";
+    private static $passwordInputFieldName = "LoginView::Password";
+    private static $SubmitFieldName = "LoginView::Login";
+
+// Constructor
+    public function __construct(\App $Application) {
+
+        // Get parent application object
+        $this->Application = $Application;
     }
 
-    // Methods
+// Public methods
     public function processLogin() {
 
-        // Get login attempt from view, if it exist.
-        $loginAttemptObj = $this->loginViewObj->getLoginAttempt();
+        // Try to authenticate
+        try {
 
-        // If there is a login attempt
-        if($loginAttemptObj !== null) {
+            // Get login attempt, if it exist.
+            $loginAttemptObj = $this->getLoginAttempt();
 
-            // Try to authenticate
-            if(self::authenticate($loginAttemptObj->getUsername(), $loginAttemptObj->getPassword())) {
+            // If there is a login attempt
+            if($loginAttemptObj !== null) {
 
-                // Create user object
-                $this->userObj = new UserModel($loginAttemptObj->getUsername());
 
-                // Store logged in user object in sessions cookie
-                \model\UsersModelDAL::storeLoginInSessionCookie($this->userObj);
+                    if(self::authenticate($loginAttemptObj->getUsername(), $loginAttemptObj->getPassword())) {
 
-                // Return login success
-                return true;
-            }
+                        // Create user object
+                        $this->userObj = new UserModel($loginAttemptObj->getUsername());
+
+                        // Store logged in user object in sessions cookie
+                        \model\UsersModelDAL::storeLoginInSessionCookie($this->userObj);
+
+                        // Return login success
+                        return true;
+                    } else {
+                        throw new \Exception("Wrong name or password");
+                    }
+                }
+        } catch (\Exception $exception) {
+
+            // Store error in application errors
+            $this->Application->errorModel->addError($exception);
         }
 
         // Return login failure
         return false;
     }
+
+    public static function logout() {
+
+        // Start session if its not already started
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Destroy session cookie
+        session_destroy();
+    }
+
+// Private methods
+    private function getLoginAttempt() {
+
+        // If username and password are posted
+        if(isset($_POST[self::$SubmitFieldName]))
+        {
+            $username = isset($_POST[self::$usernameInputFieldName]) ? $_POST[self::$usernameInputFieldName] : "";
+            $password = isset($_POST[self::$passwordInputFieldName]) ? $_POST[self::$passwordInputFieldName] : "";
+
+            // Create and return a LoginAttempt model object.
+            return new \model\LoginAttemptModel($username, $password);
+
+        }
+
+        return null;
+    }
+
+
+
 /*
     public function login($username, $password) {
 
@@ -89,12 +136,7 @@ class LoginController {
         }
     }
 */
-    public static function logout() {
 
-        // Destroy session cookie
-        session_start();
-        session_destroy();
-    }
 
     private static function authenticate($username, $password) {
 
@@ -102,7 +144,12 @@ class LoginController {
         $validUsersArray = \model\UsersModelDAL::getUsersWithPasswords();
 
         // Try to authenticate users to static user array.
-        return in_array(array($username, $password), $validUsersArray);
+        foreach($validUsersArray as $validUsername => $validPassword) {
+            if($username == $validUsername && $password == $validPassword) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
