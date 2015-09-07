@@ -2,15 +2,19 @@
 
 namespace view;
 
-class LoginLayoutView {
+use model\LoginAttemptModel;
+
+class LoginView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
-	private static $name = 'LoginView::UserName';
+	private static $username = 'LoginView::UserName';
 	private static $password = 'LoginView::Password';
 	private static $cookieName = 'LoginView::CookieName';
 	private static $cookiePassword = 'LoginView::CookiePassword';
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
+
+
 
 	/**
 	 * Create HTTP response
@@ -26,6 +30,15 @@ class LoginLayoutView {
 		//$response .= $this->generateLogoutButtonHTML($message);
 		return $response;
 	}
+
+    public function getLoginAttempt() {
+        // If username and password is posted
+        if(isset($_POST[self::$username], $_POST[self::$password])) {
+
+            // Create and return a LoginAttempt model object.
+            return new LoginAttemptModel($_POST[self::$username], $_POST[self::$password]);
+        }
+    }
 
 	/**
 	* Generate HTML code on the output buffer for the logout button
@@ -48,13 +61,13 @@ class LoginLayoutView {
 	*/
 	private function generateLoginFormHTML($message) {
 		return '
-			<form method="post" > 
+			<form method="post">
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					
-					<label for="' . self::$name . '">Username :</label>
-					<input type="text" id="' . self::$name . '" name="' . self::$name . '" value="" />
+					<label for="' . self::$username . '">Username :</label>
+					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />

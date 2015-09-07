@@ -18,13 +18,13 @@ class LayoutView {
     }
 
 
-    public function render($isLoggedIn, LoginLayoutView $loginViewObj, DateTimeView $dateTimeViewObj) {
+    public function render(LoginView $loginViewObj, DateTimeView $dateTimeViewObj) {
 
         // Render page header
         $this->renderHeader();
 
         // Render text about if the user is logged in or not
-        $this->renderIsLoggedIn($isLoggedIn);
+        $this->renderIsLoggedIn(\model\UsersModelDAL::isUserLoggedIn());
 
         echo '
               <div class="container">

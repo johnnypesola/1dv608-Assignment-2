@@ -13,7 +13,6 @@ class UserModel {
 
     // Init variables
     private $username;
-    private static $USERNAME_REGEX = "/^w{3,20}$/";
     private static $USERNAME_ERROR_MSG = "Invalid username. It should be alpha numeric, contain minimum 3 chars and max 20 chars.";
 
     // Constructor
@@ -27,9 +26,8 @@ class UserModel {
     public function setUserName($value) {
 
         // Check if username is valid
-        if(preg_match(self::$USERNAME_REGEX, $value)) {
-
-            // Set username after removing starting and ending whitespace.
+        if(\controller\ValidationController::isValidPassword($value)) {
+            // Set username
             $this->username = trim($value);
         } else {
             throw new \Exception(self::$USERNAME_ERROR_MSG);
