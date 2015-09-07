@@ -21,16 +21,16 @@ class UsersModelDAL {
 
 
     // Getters and setters
-    public static function getUsernameLastLoginAttempt() {
+    public static function GetLastLoginAttemptUsername() {
         return self::$usernameLastLoginAttempt;
     }
 
-    public static function setUsernameLastLoginAttempt($value) {
+    public static function SetLastLoginAttemptUsername($value) {
         self::$usernameLastLoginAttempt = $value;
     }
 
     // Methods
-    public static function getUsers() {
+    public static function GetUsers() {
         // Init vars
         $usersToReturnArray = array();
 
@@ -43,11 +43,11 @@ class UsersModelDAL {
         return $usersToReturnArray;
     }
 
-    public static function getUsersWithPasswords() {
+    public static function GetUsersWithPasswords() {
         return self::$VALID_USERS;
     }
 
-    public static function storeLoginInSessionCookie(UserModel $userObj) {
+    public static function StoreLoginInSessionCookie(UserModel $userObj) {
 
         // Start session if its not already started
         if (session_status() == PHP_SESSION_NONE) {
@@ -58,7 +58,7 @@ class UsersModelDAL {
         $_SESSION[self::$SESSION_COOKIE_NAME] = $userObj;
     }
 
-    public static function isUserLoggedIn() {
+    public static function IsUserLoggedIn() {
 
         // Start session if its not already started
         if (session_status() == PHP_SESSION_NONE) {

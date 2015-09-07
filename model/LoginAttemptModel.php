@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-07
- * Time: 13:24
- */
 
 namespace model;
 
@@ -13,48 +7,40 @@ class LoginAttemptModel {
 
     private $username;
     private $password;
-    private $timestamp;
-    private $Application;
 
     // Constructor
     public function __construct($username, $password) {
 
         // Set last login attempt
-        \model\UsersModelDAL::setUsernameLastLoginAttempt($username);
+        \model\UsersModelDAL::SetLastLoginAttemptUsername($username);
 
         // Set username, password and timestamp
-        $this->setUserName($username);
-        $this->setPassword($password);
-        $this->timestamp = time();
+        $this->SetUserName($username);
+        $this->SetPassword($password);
     }
 
     // Getters and Setters
     # Username
-    private function setUserName($value) {
+    private function SetUserName($value) {
 
-        if(\controller\ValidationController::isValidUsername($value)) {
+        if(\controller\ValidationController::IsValidUsername($value)) {
             $this->username = trim($value);
         }
     }
 
-    public function getUsername() {
+    public function GetUsername() {
         return $this->username;
     }
 
     # Password
-    public function setPassword($value) {
+    public function SetPassword($value) {
 
-        if(\controller\ValidationController::isValidPassword($value)) {
+        if(\controller\ValidationController::IsValidPassword($value)) {
             $this->password = trim($value);
         }
     }
 
-    public function getPassword() {
+    public function GetPassword() {
         return $this->password;
-    }
-
-    # Timestamp
-    public function getTimestamp() {
-        return $this->timestamp;
     }
 }

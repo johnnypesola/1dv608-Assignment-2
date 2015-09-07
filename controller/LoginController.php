@@ -29,43 +29,43 @@ class LoginController {
     }
 
 // Public methods
-    public function processLogin() {
+    public function ProcessLogin() {
 
         // Try to authenticate
         try {
 
             // Get login attempt, if it exist.
-            $loginAttemptObj = $this->getLoginAttempt();
+            $loginAttemptObj = $this->GetPOSTLoginAttempt();
 
             // If there is a login attempt
             if($loginAttemptObj !== null) {
 
+                // Try to authenticate with given credentials
+                if(self::Authenticate($loginAttemptObj->GetUsername(), $loginAttemptObj->GetPassword())) {
 
-                    if(self::authenticate($loginAttemptObj->getUsername(), $loginAttemptObj->getPassword())) {
+                    // Create user object
+                    $this->userObj = new UserModel($loginAttemptObj->GetUsername());
 
-                        // Create user object
-                        $this->userObj = new UserModel($loginAttemptObj->getUsername());
+                    // Store logged in user object in sessions cookie
+                    \model\UsersModelDAL::StoreLoginInSessionCookie($this->userObj);
 
-                        // Store logged in user object in sessions cookie
-                        \model\UsersModelDAL::storeLoginInSessionCookie($this->userObj);
-
-                        // Return login success
-                        return true;
-                    } else {
-                        throw new \Exception("Wrong name or password");
-                    }
+                    // Return login success
+                    return true;
+                } else {
+                    throw new \Exception("Wrong name or password");
                 }
+            }
         } catch (\Exception $exception) {
 
             // Store error in application errors
-            $this->Application->errorModel->addError($exception);
+            $this->Application->errorModel->AddError($exception);
         }
 
         // Return login failure
         return false;
     }
 
-    public static function logout() {
+    public static function Logout() {
 
         // Start session if its not already started
         if (session_status() == PHP_SESSION_NONE) {
@@ -77,7 +77,7 @@ class LoginController {
     }
 
 // Private methods
-    private function getLoginAttempt() {
+    private function GetPOSTLoginAttempt() {
 
         // If username and password are posted
         if(isset($_POST[self::$SubmitFieldName]))
@@ -87,61 +87,15 @@ class LoginController {
 
             // Create and return a LoginAttempt model object.
             return new \model\LoginAttemptModel($username, $password);
-
         }
 
         return null;
     }
 
-
-
-/*
-    public function login($username, $password) {
-
-
-        //getLoginAttempt
-
-        try {
-            // If input validates correct
-            if(ValidationController::isValidUsername($username) && ValidationController::isValidUsername($password)) {
-                // Try to create user model.
-                new UserModel($username);
-
-                // Try to authenticate
-                if(self::auth($username, $password)) {
-
-                    // Start session
-                    session_start();
-
-                    // Create new user model, and store it in a session cookie.
-                    $_SESSION['user_logged_in'];
-
-                    // Return login success
-                    return true;
-                } else {
-                    // Return login failure
-                    return false;
-                }
-            } else {
-                // Input did not validate
-                return false;
-            }
-        }
-        // In case of improper input it will throw an exception
-        catch (\Exception $exception) {
-
-            echo 'ERROR: ' . $exception->getMessage();
-
-            return false;
-        }
-    }
-*/
-
-
-    private static function authenticate($username, $password) {
+    private static function Authenticate($username, $password) {
 
         // Get valid users with passwords
-        $validUsersArray = \model\UsersModelDAL::getUsersWithPasswords();
+        $validUsersArray = \model\UsersModelDAL::GetUsersWithPasswords();
 
         // Try to authenticate users to static user array.
         foreach($validUsersArray as $validUsername => $validPassword) {

@@ -18,25 +18,25 @@ class ErrorArrayModel {
     }
 
     // Methods
-    public function addError(\Exception $exception) {
+    public function AddError(\Exception $exception) {
         $this->errors[] = $exception;
     }
 
-    public function getLastErrorMessage() {
+    public function GetLastErrorMessage() {
         $error = end($this->errors);
 
         return $error->getMessage();
     }
 
-    public function getLastError() {
+    public function GetLastError() {
         return end($this->errors);
     }
 
-    public function getAllErrors() {
+    public function GetAllErrors() {
         return $this->errors;
     }
 
-    public function hasErrors() {
+    public function HasErrors() {
         return sizeof($this->errors) > 0;
     }
 } 

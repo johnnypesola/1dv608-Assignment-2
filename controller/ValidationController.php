@@ -22,7 +22,7 @@ class ValidationController {
     private static $PASSWORD_MAX_LENGTH = 30;
     private static $PASSWORD_MAX_LENGTH_ERROR_MSG = "Password is too long. Max length is 30 chars";
 
-    public static function isValidUsername($username) {
+    public static function IsValidUsername($username) {
 
         // Check if username is empty
         if(trim(strlen($username)) == 0) {
@@ -42,7 +42,7 @@ class ValidationController {
         return true;
     }
 
-    public static function isValidPassword($password) {
+    public static function IsValidPassword($password) {
 
         // Check if password is empty
         if(trim(strlen($password)) == 0) {

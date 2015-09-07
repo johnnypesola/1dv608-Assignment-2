@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-06
- * Time: 01:35
- */
 
 namespace model;
 
@@ -18,15 +12,15 @@ class UserModel {
     // Constructor
     public function __construct($username) {
 
-        $this->setUserName($username);
+        $this->SetUserName($username);
     }
 
     // Getters and Setters
     # Username
-    public function setUserName($value) {
+    public function SetUserName($value) {
 
         // Check if username is valid
-        if(\controller\ValidationController::isValidPassword($value)) {
+        if(\controller\ValidationController::IsValidPassword($value)) {
             // Set username
             $this->username = trim($value);
         } else {
@@ -34,8 +28,7 @@ class UserModel {
         }
     }
 
-    public function getUsername() {
+    public function GetUsername() {
         return $this->username;
     }
-
 } 

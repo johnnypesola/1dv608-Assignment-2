@@ -2,9 +2,7 @@
 
 namespace view;
 
-use model\LoginAttemptModel;
-
-class LoginView {
+class FormView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
 	private static $username = 'LoginView::UserName';
@@ -16,40 +14,33 @@ class LoginView {
 
     private $Application;
 
+    // Constructor
     public function __construct(\App $Application) {
 
         // Get parent application object
         $this->Application = $Application;
     }
 
-	/**
-	 * Create HTTP response
-	 *
-	 * Should be called after a login attempt has been determined
-	 *
-	 * @return  void BUT writes to standard output and cookies!
-	 */
-	public function loginResponse() {
+    // Methods
+	public function Render() {
         // Init vars
         $message = '';
 
         // Get error messages if there are any.
-        if($this->Application->errorModel->hasErrors()) {
-            $message = $this->Application->errorModel->getLastErrorMessage();
+        if($this->Application->errorModel->HasErrors()) {
+            $message = $this->Application->errorModel->GetLastErrorMessage();
         }
 
-		$response = $this->generateLoginFormHTML($message);
-		//$response .= $this->generateLogoutButtonHTML($message);
-		return $response;
+        if(\model\UsersModelDAL::IsUserLoggedIn())
+        {
+            $this->RenderLogoutForm($message);
+        } else {
+            $this->RenderLoginForm($message);
+        }
 	}
 
-	/**
-	* Generate HTML code on the output buffer for the logout button
-	* @param $message, String output message
-	* @return  string
-	*/
-	private function generateLogoutButtonHTML($message) {
-		return '
+	private function RenderLogoutForm($message) {
+		echo '
 			<form method="post" >
 				<p id="' . self::$messageId . '">' . $message .'</p>
 				<input type="submit" name="' . self::$logout . '" value="logout"/>
@@ -57,18 +48,13 @@ class LoginView {
 		';
 	}
 	
-	/**
-	* Generate HTML code on the output buffer for the logout button
-	* @param $message, String output message
-	* @return  string
-	*/
-	private function generateLoginFormHTML($message) {
-		return '<form method=\'post\'>
+	private function RenderLoginForm($message) {
+		echo '<form method="post">
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					<label for="' . self::$username . '">Username :</label>
-					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="' . \model\UsersModelDAL::getUsernameLastLoginAttempt() . '" />
+					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="' . \model\UsersModelDAL::GetLastLoginAttemptUsername() . '" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -80,11 +66,6 @@ class LoginView {
 				</fieldset>
 			</form>
 		';
-	}
-	
-	//CREATE GET-FUNCTIONS TO FETCH REQUEST VARIABLES
-	private function getRequestUserName() {
-		//RETURN REQUEST VARIABLE: USERNAME
 	}
 	
 }
