@@ -2,7 +2,7 @@
 
 namespace view;
 
-class FormView {
+class FormView extends BaseView {
 	private static $login = 'LoginView::Login';
 	private static $logout = 'LoginView::Logout';
 	private static $username = 'LoginView::UserName';
@@ -12,13 +12,11 @@ class FormView {
 	private static $keep = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 
-    private $Application;
+    private $usersObj;
 
     // Constructor
-    public function __construct(\App $Application) {
-
-        // Get parent application object
-        $this->Application = $Application;
+    public function __construct(\model\Users $usersObj) {
+        $this->usersObj = $usersObj;
     }
 
     // Methods
@@ -27,11 +25,13 @@ class FormView {
         $message = '';
 
         // Get error messages if there are any.
-        if($this->Application->errorModel->HasErrors()) {
-            $message = $this->Application->errorModel->GetLastErrorMessage();
+        /*
+        if($this->AppController->errorModel->HasErrors()) {
+            $message = $this->AppController->errorModel->GetLastErrorMessage();
         }
+        */
 
-        if(\model\UsersModelDAL::IsUserLoggedIn())
+        if($this->usersObj->IsUserLoggedIn())
         {
             $this->RenderLogoutForm($message);
         } else {
@@ -54,7 +54,7 @@ class FormView {
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					<label for="' . self::$username . '">Username :</label>
-					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="' . \model\UsersModelDAL::GetLastLoginAttemptUsername() . '" />
+					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="' . $this->usersObj->GetLastLoginAttemptUsername() . '" />
 
 					<label for="' . self::$password . '">Password :</label>
 					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
@@ -67,5 +67,13 @@ class FormView {
 			</form>
 		';
 	}
-	
+
+    private function GetLoggedIn() {
+        return ($this->usersObj->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
+    }
+
+    private function GetTime() {
+
+        return date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s');
+    }
 }

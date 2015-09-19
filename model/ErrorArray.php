@@ -9,7 +9,7 @@
 namespace model;
 
 
-class ErrorArrayModel {
+class ErrorArray {
 
     private $errors = [];
 

@@ -3,7 +3,7 @@
 namespace model;
 
 
-class LoginAttemptModel {
+class LoginAttempt {
 
     private $username;
     private $password;

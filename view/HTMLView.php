@@ -3,7 +3,7 @@
 
 namespace view;
 
-class PageView {
+class HTMLView {
 
     private $pageTitle = '';
     private $pageCharset = '';
@@ -18,19 +18,20 @@ class PageView {
 
     }
 
-
-    public function Render($contentViewObj) {
+// Public methods
+    public function Render($pageViewObj) {
 
         // Render page header
         $this->RenderHeader();
 
-        // Render content view
-        $contentViewObj->Render();
+        // Call render method of view object
+        $pageViewObj->Render();
 
         // Render page footer
         $this->RenderFooter();
     }
 
+    // Private methods
     private function RenderHeader() {
         echo '
         <!DOCTYPE html>
@@ -41,24 +42,20 @@ class PageView {
             </head>
             <body>
                 <h1>' . $this->pageHeader . '</h1>
-                ' . (\model\UsersModelDAL::IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>') . '
+
 
                 <div class="container" >
         ';
+
+        //' . $this->GetLoggedIn() . '
     }
 
     private function RenderFooter() {
-        echo $this->RenderTime() . '
+        /*echo '<p>' . $this->GetTime() . '</p>
                 </div>
             </body>
         </html>
         ';
-    }
-
-    public function RenderTime() {
-
-        $timeString = date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s');
-
-        return '<p>' . $timeString . '</p>';
+        */
     }
 }
