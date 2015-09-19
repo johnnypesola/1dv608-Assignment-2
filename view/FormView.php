@@ -2,26 +2,76 @@
 
 namespace view;
 
-class FormView extends BaseView {
-	private static $login = 'LoginView::Login';
-	private static $logout = 'LoginView::Logout';
-	private static $username = 'LoginView::UserName';
-	private static $password = 'LoginView::Password';
+class FormView {
+	private static $loginInputName = 'LoginView::Login';
+	private static $logoutInputName = 'LoginView::Logout';
+	private static $usernameInputName = 'LoginView::UserName';
+	private static $passwordInputName = 'LoginView::Password';
 	private static $cookieName = 'LoginView::CookieName';
 	private static $cookiePassword = 'LoginView::CookiePassword';
-	private static $keep = 'LoginView::KeepMeLoggedIn';
+	private static $keepInputName = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 
-    private $usersObj;
+
+    private $users;
 
     // Constructor
-    public function __construct(\model\Users $usersObj) {
-        $this->usersObj = $usersObj;
+    public function __construct(\model\Users $users) {
+        $this->users = $users;
     }
 
-    // Methods
-	public function Render() {
+// Private methods
+
+	private function GetLogoutForm($message) {
+		return '
+			<form method="post" >
+				<p id="' . self::$messageId . '">' . $message .'</p>
+				<input type="submit" name="' . self::$logoutInputName . '" value="logout"/>
+			</form>
+		';
+	}
+	
+	private function GetLoginForm($message) {
+		return '<form method="post">
+				<fieldset>
+					<legend>Login - enter Username and password</legend>
+					<p id="' . self::$messageId . '">' . $message . '</p>
+					<label for="' . self::$usernameInputName . '">Username :</label>
+					<input type="text" id="' . self::$usernameInputName . '" name="' . self::$usernameInputName . '" value="' . $this->users->GetLastLoginAttemptUsername() . '" />
+
+					<label for="' . self::$passwordInputName . '">Password :</label>
+					<input type="password" id="' . self::$passwordInputName . '" name="' . self::$passwordInputName . '" />
+
+					<label for="' . self::$keepInputName . '">Keep me logged in  :</label>
+					<input type="checkbox" id="' . self::$keepInputName . '" name="' . self::$keepInputName . '" />
+					
+					<input type="submit" name="' . self::$loginInputName . '" value="login" />
+				</fieldset>
+			</form>
+		';
+	}
+
+    private function GetLoggedIn() {
+        return ($this->users->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
+    }
+
+    private function GetTime() {
+
+        return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
+    }
+
+// Public methods
+
+    public function UserWantsToLogin() {
+        if (isset($_POST[self::$usernameInputName]) && isset($_POST[self::$usernameInputName]) ) {
+            return true;
+        }
+        return false;
+    }
+
+    public function GetOutput() {
         // Init vars
+        $output = '';
         $message = '';
 
         // Get error messages if there are any.
@@ -31,49 +81,27 @@ class FormView extends BaseView {
         }
         */
 
-        if($this->usersObj->IsUserLoggedIn())
-        {
-            $this->RenderLogoutForm($message);
-        } else {
-            $this->RenderLoginForm($message);
-        }
-	}
+        // Get logged in header text
+        $output .= $this->GetLoggedIn();
 
-	private function RenderLogoutForm($message) {
-		echo '
-			<form method="post" >
-				<p id="' . self::$messageId . '">' . $message .'</p>
-				<input type="submit" name="' . self::$logout . '" value="logout"/>
-			</form>
-		';
-	}
-	
-	private function RenderLoginForm($message) {
-		echo '<form method="post">
-				<fieldset>
-					<legend>Login - enter Username and password</legend>
-					<p id="' . self::$messageId . '">' . $message . '</p>
-					<label for="' . self::$username . '">Username :</label>
-					<input type="text" id="' . self::$username . '" name="' . self::$username . '" value="' . $this->usersObj->GetLastLoginAttemptUsername() . '" />
+        // Get login or logout form output
+        $output .= $this->users->IsUserLoggedIn() ? $this->GetLogoutForm($message) : $this->GetLoginForm($message);
 
-					<label for="' . self::$password . '">Password :</label>
-					<input type="password" id="' . self::$password . '" name="' . self::$password . '" />
+        // Get time output
+        $output .= $this->GetTime();
 
-					<label for="' . self::$keep . '">Keep me logged in  :</label>
-					<input type="checkbox" id="' . self::$keep . '" name="' . self::$keep . '" />
-					
-					<input type="submit" name="' . self::$login . '" value="login" />
-				</fieldset>
-			</form>
-		';
-	}
-
-    private function GetLoggedIn() {
-        return ($this->usersObj->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
+        return $output;
     }
 
-    private function GetTime() {
+    public function GetLoginAttempt() {
 
-        return date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s');
+        // Assert that user actually wants to login.
+        assert($this->UserWantsToLogin());
+
+        // Return array with login info.
+        return array(
+            'username' => $_POST[self::$usernameInputName],
+            'password' => $_POST[self::$passwordInputName]
+        );
     }
 }

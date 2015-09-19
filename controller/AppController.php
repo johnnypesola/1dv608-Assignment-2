@@ -12,7 +12,7 @@ class AppController extends AppBaseController {
         // Create main controller object
         $this->mainController = new \controller\LoginController($this);
 
-        // Render form view as content in page
-        $this->HTMLView->Render();
+        // Render main controllers return view as content in HTMLview
+        $this->HTMLView->Render($this->mainController->GetOutput());
     }
 }

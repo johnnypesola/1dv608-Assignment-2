@@ -6,7 +6,6 @@ ini_set('display_errors', 'On');
 
 // Include files
 # Views
-require_once('view/BaseView.php');
 require_once('view/HTMLView.php');
 require_once('view/FormView.php');
 
@@ -16,7 +15,6 @@ require_once('controller/AppController.php');
 require_once('controller/LoginController.php');
 
 # Models
-require_once('model/LoginAttempt.php');
 require_once('model/ErrorArray.php');
 require_once('model/User.php');
 

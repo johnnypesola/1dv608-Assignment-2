@@ -8,38 +8,28 @@
 
 namespace controller;
 
-
-use model\User;
-
 class LoginController {
 
 // Init variables
-    private $userObj;
-    private $usersObj;
-
-    private static $usernameInputFieldName = "LoginView::UserName";
-    private static $passwordInputFieldName = "LoginView::Password";
-    private static $SubmitFieldName = "LoginView::Login";
-
+    private $users;
+    private $AppController;
 
     public $errorModel;
-    public $formViewObj;
+    public $formView;
     public $pageViewObj;
 
 
 // Constructor
     public function __construct($AppController) {
 
-        // Create users object
-        $this->usersObj = new \model\Users();
+        // Store Application controller reference
+        $this->AppController = $AppController;
 
-        echo $this->usersObj->Authenticate(new User(NULL, "anotheradmin", "anotherpassword", false));
+        // Create users model
+        $this->users = new \model\Users();
 
         // Create form view object
-        $this->formViewObj = new \view\FormView($this->usersObj);
-
-        // Render form view as content in page
-        $AppController->HTMLView->Render($this->formViewObj);
+        $this->formView = new \view\FormView($this->users);
 
         // Process Login
         $this->ProcessLogin();
@@ -52,33 +42,35 @@ class LoginController {
         // Try to authenticate
         try {
 
-            $this->usersObj = new \model\Users();
+            // If user wants to login
+            if($this->formView->UserWantsToLogin()) {
 
-            // Get login attempt, if it exist.
-            $loginAttemptObj = $this->GetPOSTLoginAttempt();
+                // Get login attempt
+                $loginAttemptArray = $this->formView->GetLoginAttempt();
 
-            // If there is a login attempt
-            if($loginAttemptObj !== null) {
+                // Create new user from login attempt
+                $loginAttemptUser = new \model\User(NULL, $loginAttemptArray['username'], $loginAttemptArray['password'], false);
 
-                // Try to authenticate with given credentials
-                if(self::Authenticate($loginAttemptObj->GetUsername(), $loginAttemptObj->GetPassword())) {
-
-                    // Create user object
-                    $this->userObj = new User($loginAttemptObj->GetUsername());
+                // Try to authenticate user
+                if($this->users->Authenticate($loginAttemptUser)) {
 
                     // Store logged in user object in sessions cookie
-                    \model\Users::StoreLoginInSessionCookie($this->userObj);
+                    \model\Users::StoreLoginInSessionCookie($loginAttemptUser);
 
-                    // Return login success
+                    // If the user authenticated successfully
                     return true;
+
                 } else {
+
+                    // If the user was denied access
                     throw new \Exception("Wrong name or password");
                 }
             }
+
         } catch (\Exception $exception) {
 
             // Store error in application errors
-            //$this->Application->errorModel->AddError($exception);
+            $this->AppController->errorModel->AddError($exception);
         }
 
         // Return login failure
@@ -96,36 +88,11 @@ class LoginController {
         session_destroy();
     }
 
+    public function GetOutput(){
+        return $this->formView->GetOutput();
+    }
+
 // Private methods
-    private function GetPOSTLoginAttempt() {
 
-        // If username and password are posted
-        if(isset($_POST[self::$SubmitFieldName]))
-        {
-            $username = isset($_POST[self::$usernameInputFieldName]) ? $_POST[self::$usernameInputFieldName] : "";
-            $password = isset($_POST[self::$passwordInputFieldName]) ? $_POST[self::$passwordInputFieldName] : "";
-
-            // Create and return a LoginAttempt model object.
-            return new \model\LoginAttempt($username, $password);
-        }
-
-        return null;
-    }
-
-    /*
-    private static function Authenticate($username, $password) {
-
-        // Get valid users with passwords
-        $validUsersArray = \model\Users::GetWithPasswords();
-
-        // Try to authenticate users to static user array.
-        foreach($validUsersArray as $validUsername => $validPassword) {
-            if($username == $validUsername && $password == $validPassword) {
-                return true;
-            }
-        }
-        return false;
-    }
-    */
 
 } 

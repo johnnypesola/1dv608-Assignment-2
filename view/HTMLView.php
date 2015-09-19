@@ -19,13 +19,13 @@ class HTMLView {
     }
 
 // Public methods
-    public function Render($pageViewObj) {
+    public function Render($output) {
 
         // Render page header
         $this->RenderHeader();
 
-        // Call render method of view object
-        $pageViewObj->Render();
+        // Render page output
+        echo $output;
 
         // Render page footer
         $this->RenderFooter();
