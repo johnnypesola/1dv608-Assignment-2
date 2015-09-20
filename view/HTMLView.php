@@ -39,6 +39,7 @@ class HTMLView {
                 <head>
                 <meta charset="' . $this->pageCharset . '">
                 <title>' . $this->pageTitle . '</title>
+                <link rel="stylesheet" href="css/style.css">
             </head>
             <body>
                 <h1>' . $this->pageHeader . '</h1>

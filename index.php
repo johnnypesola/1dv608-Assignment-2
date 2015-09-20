@@ -15,7 +15,7 @@ require_once('controller/AppController.php');
 require_once('controller/LoginController.php');
 
 # Models
-require_once('model/ErrorArray.php');
+require_once('model/Exceptions.php');
 require_once('model/User.php');
 
 # DAL models
@@ -24,4 +24,3 @@ require_once('model/DAL/Users.php');
 
 # Create Application controller object
 $app = new \controller\AppController();
-

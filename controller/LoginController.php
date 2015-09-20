@@ -12,24 +12,20 @@ class LoginController {
 
 // Init variables
     private $users;
-    private $AppController;
-
-    public $errorModel;
+    private $appController;
     public $formView;
-    public $pageViewObj;
-
 
 // Constructor
-    public function __construct($AppController) {
+    public function __construct($appController) {
 
         // Store Application controller reference
-        $this->AppController = $AppController;
+        $this->appController = $appController;
 
         // Create users model
         $this->users = new \model\Users();
 
         // Create form view object
-        $this->formView = new \view\FormView($this->users);
+        $this->formView = new \view\FormView($this->users, $this->appController->exceptions);
 
         // Process Login
         $this->ProcessLogin();
@@ -42,8 +38,13 @@ class LoginController {
         // Try to authenticate
         try {
 
+            // If user wants to logout
+            if($this->formView->UserWantsToLogout()) {
+                $this->Logout();
+            }
+
             // If user wants to login
-            if($this->formView->UserWantsToLogin()) {
+            else if($this->formView->UserWantsToLogin()) {
 
                 // Get login attempt
                 $loginAttemptArray = $this->formView->GetLoginAttempt();
@@ -55,22 +56,22 @@ class LoginController {
                 if($this->users->Authenticate($loginAttemptUser)) {
 
                     // Store logged in user object in sessions cookie
-                    \model\Users::StoreLoginInSessionCookie($loginAttemptUser);
+                    $this->users->StoreLoginInSessionCookie($loginAttemptUser);
 
-                    // If the user authenticated successfully
-                    return true;
+                    // The user authenticated successfully, reload page
+                    $this->appController->ReloadPage();
 
                 } else {
 
-                    // If the user was denied access
+                    // The user was denied access
                     throw new \Exception("Wrong name or password");
                 }
             }
 
         } catch (\Exception $exception) {
 
-            // Store error in application errors
-            $this->AppController->errorModel->AddError($exception);
+            // Store exceptions in applications exceptions container model
+            $this->appController->exceptions->AddException($exception);
         }
 
         // Return login failure
@@ -89,7 +90,7 @@ class LoginController {
     }
 
     public function GetOutput(){
-        return $this->formView->GetOutput();
+        return $this->formView->GetHTML();
     }
 
 // Private methods

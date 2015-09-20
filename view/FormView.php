@@ -16,13 +16,14 @@ class FormView {
     private $users;
 
     // Constructor
-    public function __construct(\model\Users $users) {
+    public function __construct(\model\Users $users, \model\Exceptions $exceptions) {
         $this->users = $users;
+        $this->exceptions = $exceptions;
     }
 
 // Private methods
 
-	private function GetLogoutForm($message) {
+	private function GetLogoutFormOutput($message) {
 		return '
 			<form method="post" >
 				<p id="' . self::$messageId . '">' . $message .'</p>
@@ -31,13 +32,13 @@ class FormView {
 		';
 	}
 	
-	private function GetLoginForm($message) {
+	private function GetLoginFormOutput($message) {
 		return '<form method="post">
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
 					<p id="' . self::$messageId . '">' . $message . '</p>
 					<label for="' . self::$usernameInputName . '">Username :</label>
-					<input type="text" id="' . self::$usernameInputName . '" name="' . self::$usernameInputName . '" value="' . $this->users->GetLastLoginAttemptUsername() . '" />
+					<input type="text" id="' . self::$usernameInputName . '" name="' . self::$usernameInputName . '" value="' . $this->GetLastLoginAttemptUsername() . '" />
 
 					<label for="' . self::$passwordInputName . '">Password :</label>
 					<input type="password" id="' . self::$passwordInputName . '" name="' . self::$passwordInputName . '" />
@@ -51,44 +52,70 @@ class FormView {
 		';
 	}
 
-    private function GetLoggedIn() {
+    private function GetLastLoginAttemptUsername() {
+        return isset($_POST[self::$usernameInputName]) ? $_POST[self::$usernameInputName] : '';
+    }
+
+    private function GetLoggedInOutput() {
         return ($this->users->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
     }
 
-    private function GetTime() {
+    private function GetTimeOutput() {
 
         return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
+    }
+
+    private function GetLoggedInMessage() {
+
+        $message = '';
+
+        // Mark
+        if(!isset($_SESSION['login_message_displayed'])) {
+            $message = 'Welcome';
+
+            $_SESSION['login_message_displayed'] = true;
+        }
+
+        return $message;
+    }
+
+    private function GetLoggedOutMessage() {
+
+        $message = 'Bye bye!';
+
+        return $message;
     }
 
 // Public methods
 
     public function UserWantsToLogin() {
-        if (isset($_POST[self::$usernameInputName]) && isset($_POST[self::$usernameInputName]) ) {
-            return true;
-        }
-        return false;
+        return isset($_POST[self::$usernameInputName]) && isset($_POST[self::$usernameInputName]);
     }
 
-    public function GetOutput() {
-        // Init vars
-        $output = '';
-        $message = '';
+    public function UserWantsToLogout(){
+        return (isset($_POST[self::$logoutInputName]));
+    }
 
-        // Get error messages if there are any.
-        /*
-        if($this->AppController->errorModel->HasErrors()) {
-            $message = $this->AppController->errorModel->GetLastErrorMessage();
-        }
-        */
+    public function GetHTML() {
+
+        $formMessage = '';
 
         // Get logged in header text
-        $output .= $this->GetLoggedIn();
+        $output = $this->GetLoggedInOutput();
+
+        // Get exception messages if there are any.
+        if($this->exceptions->HasExceptions()) {
+            $formMessage =  $this->exceptions->GetLastExceptionMessage();
+        }
+        else if($this->users->IsUserLoggedIn()) {
+            $formMessage = $this->GetLoggedInMessage();
+        }
 
         // Get login or logout form output
-        $output .= $this->users->IsUserLoggedIn() ? $this->GetLogoutForm($message) : $this->GetLoginForm($message);
+        $output .= $this->users->IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
 
         // Get time output
-        $output .= $this->GetTime();
+        $output .= $this->GetTimeOutput();
 
         return $output;
     }

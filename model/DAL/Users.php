@@ -21,6 +21,7 @@ class Users extends DBBase {
 // Constructor
 
 // Getters and setters
+/*
     public function GetLastLoginAttemptUsername() {
         return self::$usernameLastLoginAttempt;
     }
@@ -28,6 +29,7 @@ class Users extends DBBase {
     public function SetLastLoginAttemptUsername($value) {
         self::$usernameLastLoginAttempt = $value;
     }
+*/
 
 // Public Methods
 
