@@ -12,36 +12,14 @@ namespace model;
 class Users extends DBBase {
 
 // Init variables
-    private static $usernameLastLoginAttempt = "";
-    private static $SESSION_COOKIE_NAME = "user_logged_in";
 
     private static $DB_TABLE_NAME = 'ass2_user';
-
 
 // Constructor
 
 // Getters and setters
-/*
-    public function GetLastLoginAttemptUsername() {
-        return self::$usernameLastLoginAttempt;
-    }
-
-    public function SetLastLoginAttemptUsername($value) {
-        self::$usernameLastLoginAttempt = $value;
-    }
-*/
 
 // Public Methods
-
-    public function IsUserLoggedIn() {
-
-        // Start session if its not already started
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        return isset($_SESSION[self::$SESSION_COOKIE_NAME]);
-    }
 
     public function GetAll() {
 
@@ -144,20 +122,5 @@ class Users extends DBBase {
 
         return false;
     }
-
-    public function StoreLoginInSessionCookie(User $userObj) {
-
-        // Start session if its not already started
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Store user object in a session cookie.
-        $_SESSION[self::$SESSION_COOKIE_NAME] = $userObj;
-    }
-
-
-
-
 
 } 

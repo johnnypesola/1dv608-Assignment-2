@@ -38,8 +38,8 @@ class LoginController {
         // Try to authenticate
         try {
 
-            // If user wants to logout
-            if($this->formView->UserWantsToLogout()) {
+            // If user is logged in and wants to logout
+            if($this->formView->UserWantsToLogout() && \model\Cookies::IsUserLoggedIn()) {
                 $this->Logout();
             }
 
@@ -56,7 +56,10 @@ class LoginController {
                 if($this->users->Authenticate($loginAttemptUser)) {
 
                     // Store logged in user object in sessions cookie
-                    $this->users->StoreLoginInSessionCookie($loginAttemptUser);
+                    \model\Cookies::KeepUserLoggedIn($loginAttemptUser);
+
+                    // Set a login message to be displayed for the user.
+                    $this->formView->SetLoggedInMessage();
 
                     // The user authenticated successfully, reload page
                     $this->appController->ReloadPage();
@@ -78,15 +81,28 @@ class LoginController {
         return false;
     }
 
-    public static function Logout() {
+    public function Logout() {
 
-        // Start session if its not already started
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
+        // Assert that user is logged in
+        assert(\model\Cookies::IsUserLoggedIn());
+
+        // Only logout user if logged in
+        if(\model\Cookies::IsUserLoggedIn()) {
+
+            // Start session if its not already started
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
+
+            // Set a logout message to be displayed for the user.
+            $this->formView->SetLoggedOutMessage();
+
+            // Clear user login
+            \model\Cookies::ForgetUserLoggedIn();
+
+            // The user logged out successfully, reload page
+            $this->appController->ReloadPage();
         }
-
-        // Destroy session cookie
-        session_destroy();
     }
 
     public function GetOutput(){

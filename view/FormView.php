@@ -57,7 +57,7 @@ class FormView {
     }
 
     private function GetLoggedInOutput() {
-        return ($this->users->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
+        return (\model\Cookies::IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
     }
 
     private function GetTimeOutput() {
@@ -65,28 +65,18 @@ class FormView {
         return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
     }
 
-    private function GetLoggedInMessage() {
-
-        $message = '';
-
-        // Mark
-        if(!isset($_SESSION['login_message_displayed'])) {
-            $message = 'Welcome';
-
-            $_SESSION['login_message_displayed'] = true;
-        }
-
-        return $message;
-    }
-
-    private function GetLoggedOutMessage() {
-
-        $message = 'Bye bye!';
-
-        return $message;
-    }
 
 // Public methods
+
+    public function SetLoggedInMessage() {
+
+        \model\FlashMessage::Set('Welcome');
+    }
+
+    public function SetLoggedOutMessage() {
+
+        \model\FlashMessage::Set('Bye bye!');
+    }
 
     public function UserWantsToLogin() {
         return isset($_POST[self::$usernameInputName]) && isset($_POST[self::$usernameInputName]);
@@ -107,12 +97,12 @@ class FormView {
         if($this->exceptions->HasExceptions()) {
             $formMessage =  $this->exceptions->GetLastExceptionMessage();
         }
-        else if($this->users->IsUserLoggedIn()) {
-            $formMessage = $this->GetLoggedInMessage();
+        else if(\model\FlashMessage::DoesExist()){
+            $formMessage = \model\FlashMessage::Get();
         }
 
         // Get login or logout form output
-        $output .= $this->users->IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
+        $output .= \model\Cookies::IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
 
         // Get time output
         $output .= $this->GetTimeOutput();
