@@ -13,6 +13,7 @@ class User {
     private $signature;
 
     private $passwordHashed = false;
+    private $tokenHashed = false;
 
     private static $USER_ID_ERROR_MSG = "Invalid user id. It should be numeric and above 0.";
 
@@ -34,14 +35,12 @@ class User {
         'TOKEN' => [
             'REGEX' => '/[^a-z_\-0-9]/i',
             'REGEX_ERROR_MSG' => "Invalid token. It should be alpha numeric.",
-            'EMPTY_ERROR_MSG' => "Token is missing",
             'MAX_LENGTH' => 255,
             'MAX_LENGTH_ERROR_MSG' => "Token is too long. Max length is 255 chars"
         ],
         'SIGNATURE' => [
             'REGEX' => '/[^a-z_\-0-9]/i',
             'REGEX_ERROR_MSG' => "Invalid signature. It should be alpha numeric.",
-            'EMPTY_ERROR_MSG' => "Signature is missing",
             'MAX_LENGTH' => 255,
             'MAX_LENGTH_ERROR_MSG' => "Signature is too long. Max length is 255 chars"
         ]
@@ -55,11 +54,12 @@ class User {
         $doHashPassword = true,
         $doCheckPassword = true,
         $token = "",
-        $signature = ""
+        $doHashToken = true
     ) {
         $this->SetUserId($id);
         $this->SetUserName($username);
         $this->SetPassword($password, $doHashPassword, $doCheckPassword);
+        $this->SetToken($token, $doHashToken);
     }
 
 // Getters and Setters
@@ -117,13 +117,18 @@ class User {
     }
 
     # Token
-    public function SetToken($value) {
+    public function SetToken($value, $doHashToken = true) {
 
-        // Check if username is valid
+        // Check if token is valid
         if($this->IsValidString('TOKEN', $value)) {
 
-            // Set username
-            $this->token = trim($value);
+            // Set token
+            if($doHashToken) {
+                $this->token = \model\Auth::Hash($value);
+                $this->tokenHashed = true;
+            } else {
+                $this->token = trim($value);
+            }
         }
     }
 
@@ -134,10 +139,10 @@ class User {
     # Signature
     public function SetSignature($value) {
 
-        // Check if username is valid
+        // Check if signature is valid
         if($this->IsValidString('SIGNATURE', $value)) {
 
-            // Set username
+            // Set signature
             $this->signature = trim($value);
         }
     }
@@ -152,7 +157,7 @@ class User {
     private function IsValidString($type, $value) {
 
         // Check if value is empty
-        if(trim(strlen($value)) == 0) {
+        if(isset(self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']) && trim(strlen($value)) == 0) {
             throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']);
         }
 
@@ -172,5 +177,18 @@ class User {
 // Public methods
     public function IsPasswordHashed() {
         return $this->passwordHashed;
+    }
+
+    public function HashPassword() {
+
+        // Assert that password is not hashed already
+        assert(!$this->IsPasswordHashed());
+
+        // Hash password through set method
+        $this->SetPassword($this->password);
+    }
+
+    public function IsTokenHashed() {
+        return $this->tokenHashed;
     }
 } 

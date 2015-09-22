@@ -30,9 +30,11 @@ class Auth {
     public function auth() {
 
         // Check if remeber me cookie is present
+        /*
         if (! isset($_COOKIE["auto"]) || empty($_COOKIE["auto"])) {
             return false;
         }
+*/
 
         // Decode cookie value
         if (! $cookie = @json_decode($_COOKIE["auto"], true)) {
@@ -100,7 +102,7 @@ class Auth {
 
 ## Done
 
-    public function Hash($value) {
+    public static function Hash($value) {
         return hash_hmac(self::$HASH_ALGORITHM, $value, self::$AUTH_KEY_STRING);
     }
 
@@ -126,17 +128,17 @@ class Auth {
 
 // Public methods
 
-    public function AuthenticatePersistent($username, $token, $signature) {
+    public function AuthenticatePersistent(\model\User $user) {
 
         // Check signature
-        if(!$this->DoHashesEqual($this->Hash($username . $token), $signature)) {
+        if(!$this->DoHashesEqual(self::Hash($user->GetUserName() . $user->GetToken()), $user->GetSignature())) {
 
             // Signatures does not match
             throw new \UnexpectedValueException("Signature from 'username' and 'token' does not match original 'signature'");
         }
 
         // Try to get specific user
-        $userFromDB = $this->users->GetUserByUsername($username);
+        $userFromDB = $this->users->GetUserByUsername($user->GetUserName());
 
         if($userFromDB) {
 
@@ -156,8 +158,15 @@ class Auth {
         $userFromDB = $this->users->GetUserByUsername($user->GetUserName());
 
         if($userFromDB) {
+
             // Verify password in user object against password in db table row.
-            return password_verify($user->GetPassword(), $userFromDB->GetPassword());
+            if(password_verify($user->GetPassword(), $userFromDB->GetPassword())) {
+
+                // Hash password in user object. Does no need to be in clear text anymore.
+                $user->HashPassword();
+
+                return true;
+            }
         }
 
         return false;
@@ -173,7 +182,7 @@ class Auth {
         return isset($_SESSION[self::$SESSION_COOKIE_NAME]);
     }
 
-    public function KeepUserLoggedIn(\model\User $user) {
+    public function KeepUserLoggedInForSession(\model\User $user) {
 
         // Start session if its not already started
         if (session_status() == PHP_SESSION_NONE) {

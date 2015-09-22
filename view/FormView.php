@@ -3,14 +3,16 @@
 namespace view;
 
 class FormView {
-	private static $loginInputName = 'LoginView::Login';
-	private static $logoutInputName = 'LoginView::Logout';
-	private static $usernameInputName = 'LoginView::UserName';
-	private static $passwordInputName = 'LoginView::Password';
-	private static $cookieName = 'LoginView::CookieName';
-	private static $cookiePassword = 'LoginView::CookiePassword';
-	private static $keepInputName = 'LoginView::KeepMeLoggedIn';
-	private static $messageId = 'LoginView::Message';
+	private static $LOGIN_INPUT_NAME = 'LoginView::Login';
+	private static $LOGOUT_INPUT_NAME = 'LoginView::Logout';
+	private static $USERNAME_INPUT_NAME = 'LoginView::UserName';
+	private static $PASSWORD_INPUT_NAME = 'LoginView::Password';
+	private static $COOKIE_INPUT_NAME = 'LoginView::CookieName';
+	private static $COOKIE_PASSWORD = 'LoginView::CookiePassword';
+	private static $KEEP_LOGGED_IN_INPUT_NAME = 'LoginView::KeepMeLoggedIn';
+	private static $MESSAGE_ID = 'LoginView::Message';
+
+    private static $COOKIE_ID = 'keep_login';
 
     private $users;
     private $auth;
@@ -28,8 +30,8 @@ class FormView {
 	private function GetLogoutFormOutput($message) {
 		return '
 			<form method="post" >
-				<p id="' . self::$messageId . '">' . $message .'</p>
-				<input type="submit" name="' . self::$logoutInputName . '" value="logout"/>
+				<p id="' . self::$MESSAGE_ID . '">' . $message .'</p>
+				<input type="submit" name="' . self::$LOGOUT_INPUT_NAME . '" value="logout"/>
 			</form>
 		';
 	}
@@ -38,24 +40,24 @@ class FormView {
 		return '<form method="post">
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
-					<p id="' . self::$messageId . '">' . $message . '</p>
-					<label for="' . self::$usernameInputName . '">Username :</label>
-					<input type="text" id="' . self::$usernameInputName . '" name="' . self::$usernameInputName . '" value="' . $this->GetLastLoginAttemptUsername() . '" />
+					<p id="' . self::$MESSAGE_ID . '">' . $message . '</p>
+					<label for="' . self::$USERNAME_INPUT_NAME . '">Username :</label>
+					<input type="text" id="' . self::$USERNAME_INPUT_NAME . '" name="' . self::$USERNAME_INPUT_NAME . '" value="' . $this->GetLastLoginAttemptUsername() . '" />
 
-					<label for="' . self::$passwordInputName . '">Password :</label>
-					<input type="password" id="' . self::$passwordInputName . '" name="' . self::$passwordInputName . '" />
+					<label for="' . self::$PASSWORD_INPUT_NAME . '">Password :</label>
+					<input type="password" id="' . self::$PASSWORD_INPUT_NAME . '" name="' . self::$PASSWORD_INPUT_NAME . '" />
 
-					<label for="' . self::$keepInputName . '">Keep me logged in  :</label>
-					<input type="checkbox" id="' . self::$keepInputName . '" name="' . self::$keepInputName . '" />
+					<label for="' . self::$KEEP_LOGGED_IN_INPUT_NAME . '">Keep me logged in  :</label>
+					<input type="checkbox" id="' . self::$KEEP_LOGGED_IN_INPUT_NAME . '" name="' . self::$KEEP_LOGGED_IN_INPUT_NAME . '" />
 					
-					<input type="submit" name="' . self::$loginInputName . '" value="login" />
+					<input type="submit" name="' . self::$LOGIN_INPUT_NAME . '" value="login" />
 				</fieldset>
 			</form>
 		';
 	}
 
     private function GetLastLoginAttemptUsername() {
-        return isset($_POST[self::$usernameInputName]) ? $_POST[self::$usernameInputName] : '';
+        return isset($_POST[self::$USERNAME_INPUT_NAME]) ? $_POST[self::$USERNAME_INPUT_NAME] : '';
     }
 
     private function GetLoggedInOutput() {
@@ -93,11 +95,11 @@ class FormView {
     }
 
     public function UserWantsToLogin() {
-        return isset($_POST[self::$usernameInputName]) && isset($_POST[self::$usernameInputName]);
+        return isset($_POST[self::$USERNAME_INPUT_NAME]) && isset($_POST[self::$USERNAME_INPUT_NAME]);
     }
 
     public function UserWantsToLogout(){
-        return (isset($_POST[self::$logoutInputName]));
+        return (isset($_POST[self::$LOGOUT_INPUT_NAME]));
     }
 
     public function GetHTML() {
@@ -131,8 +133,50 @@ class FormView {
 
         // Return array with login info.
         return array(
-            'username' => $_POST[self::$usernameInputName],
-            'password' => $_POST[self::$passwordInputName]
+            'username' => $_POST[self::$USERNAME_INPUT_NAME],
+            'password' => $_POST[self::$PASSWORD_INPUT_NAME]
         );
+    }
+
+    public function DoesUserWantsLoginToBeRemembered(){
+        return isset($_POST[self::$KEEP_LOGGED_IN_INPUT_NAME]) ? true : false;
+    }
+
+    public function SaveLoginOnClient(\model\User $user) {
+
+        // Prepare values
+        $cookieValues = implode(':', array($user->GetUserName(), $user->GetToken(), $user->GetSignature()));
+
+        // Save values in cookie
+        return setcookie(self::$COOKIE_ID, $cookieValues, time() + 60 * 60 * 24 * 365);
+    }
+
+    public function DeleteLoginSavedOnClient() {
+
+        // Assert that cookie exists
+        assert($this->IsLoginSavedOnClient());
+
+        // Remove cookie, set expiration date to past.
+        setcookie (self::$COOKIE_ID, "", time() - 3600);
+    }
+
+    public function IsLoginSavedOnClient() {
+        return isset($_COOKIE[self::$COOKIE_ID]);
+    }
+
+    public function GetLoginSavedOnClient() {
+
+        // Assert that cookie exists
+        assert($this->IsLoginSavedOnClient());
+
+        // Create correct variables from array
+        list($username, $token, $signature) = explode(':', $_COOKIE[self::$COOKIE_ID]);
+
+        // Return array with data
+        return [
+            "username" => $username,
+            "token" => $token,
+            "signature" => $signature
+        ];
     }
 }

@@ -72,11 +72,14 @@ class Users extends DBBase {
         // Return found user or false
         if(sizeof($userRowsArray) > 0) {
 
+            // Create new user
             return new \model\User(
                     $userRowsArray[0]['user_id'],
                     $userRowsArray[0]['user_name'],
                     $userRowsArray[0]['user_password'],
                     false,
+                    false,
+                    $userRowsArray[0]['user_token_hash'],
                     false
             );
         }

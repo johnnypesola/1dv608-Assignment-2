@@ -38,7 +38,7 @@ class LoginController {
 // Public methods
     public function ProcessLogin() {
 
-
+/*
         $username = "Mario";
 
         $token = $this->auth->GenerateToken();
@@ -46,7 +46,7 @@ class LoginController {
         $signature = $this->auth->Hash($username . $token);
 
         echo "here -> " . $signature . $this->auth->AuthenticatePersistent($username, $token, $signature);
-
+*/
         //echo $this->auth->verify("fisk", $hashed);
 
 
@@ -61,6 +61,23 @@ class LoginController {
                 $this->Logout();
             }
 
+            // If login is saved on client
+
+            else if($this->formView->IsLoginSavedOnClient()) {
+
+                $userInfoArray = $this->formView->GetLoginSavedOnClient();
+
+                echo '<pre style="text-align: left;">';
+                print_r($userInfoArray);
+                echo '</pre>';
+
+
+                //$user = new \model\User(NULL, NULL, false, false, false, $userInfoArray[]);
+
+                //$this->auth->AuthenticatePersistent()
+            }
+
+
             // If user wants to login
             else if($this->formView->UserWantsToLogin()) {
 
@@ -74,7 +91,17 @@ class LoginController {
                 if($this->auth->Authenticate($loginAttemptUser)) {
 
                     // Store logged in user object in sessions cookie
-                    $this->auth->KeepUserLoggedIn($loginAttemptUser);
+                    $this->auth->KeepUserLoggedInForSession($loginAttemptUser);
+
+                    // Check if user wants login to be remembered
+                    if($this->formView->DoesUserWantsLoginToBeRemembered()) {
+
+                        // Save login on client
+
+                        print_r($loginAttemptUser);
+
+                        $this->formView->SaveLoginOnClient($loginAttemptUser);
+                    }
 
                     // Set a login message to be displayed for the user.
                     $this->formView->SetLoggedInMessage();
@@ -117,6 +144,11 @@ class LoginController {
 
             // Clear user login
             $this->auth->ForgetUserLoggedIn();
+
+            // Clear persistent client login data, if there is any.
+            if($this->formView->IsLoginSavedOnClient()) {
+                $this->formView->DeleteLoginSavedOnClient();
+            }
 
             // The user logged out successfully, reload page
             $this->appController->ReloadPage();
