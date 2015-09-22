@@ -12,6 +12,7 @@ class LoginController {
 
 // Init variables
     private $users;
+    private $auth;
     private $appController;
     public $formView;
 
@@ -24,22 +25,39 @@ class LoginController {
         // Create users model
         $this->users = new \model\Users();
 
+        // Create auth model
+        $this->auth = new \model\Auth($this->users);
+
         // Create form view object
-        $this->formView = new \view\FormView($this->users, $this->appController->exceptions);
+        $this->formView = new \view\FormView($this->users, $this->auth, $this->appController->exceptions);
 
         // Process Login
         $this->ProcessLogin();
-
     }
 
 // Public methods
     public function ProcessLogin() {
 
+
+        $username = "Mario";
+
+        $token = $this->auth->GenerateToken();
+
+        $signature = $this->auth->Hash($username . $token);
+
+        echo "here -> " . $signature . $this->auth->AuthenticatePersistent($username, $token, $signature);
+
+        //echo $this->auth->verify("fisk", $hashed);
+
+
+
+
+
         // Try to authenticate
         try {
 
             // If user is logged in and wants to logout
-            if($this->formView->UserWantsToLogout() && \model\Cookies::IsUserLoggedIn()) {
+            if($this->formView->UserWantsToLogout() && $this->auth->IsUserLoggedIn()) {
                 $this->Logout();
             }
 
@@ -53,10 +71,10 @@ class LoginController {
                 $loginAttemptUser = new \model\User(NULL, $loginAttemptArray['username'], $loginAttemptArray['password'], false);
 
                 // Try to authenticate user
-                if($this->users->Authenticate($loginAttemptUser)) {
+                if($this->auth->Authenticate($loginAttemptUser)) {
 
                     // Store logged in user object in sessions cookie
-                    \model\Cookies::KeepUserLoggedIn($loginAttemptUser);
+                    $this->auth->KeepUserLoggedIn($loginAttemptUser);
 
                     // Set a login message to be displayed for the user.
                     $this->formView->SetLoggedInMessage();
@@ -84,10 +102,10 @@ class LoginController {
     public function Logout() {
 
         // Assert that user is logged in
-        assert(\model\Cookies::IsUserLoggedIn());
+        assert($this->auth->IsUserLoggedIn());
 
         // Only logout user if logged in
-        if(\model\Cookies::IsUserLoggedIn()) {
+        if($this->auth->IsUserLoggedIn()) {
 
             // Start session if its not already started
             if (session_status() == PHP_SESSION_NONE) {
@@ -98,7 +116,7 @@ class LoginController {
             $this->formView->SetLoggedOutMessage();
 
             // Clear user login
-            \model\Cookies::ForgetUserLoggedIn();
+            $this->auth->ForgetUserLoggedIn();
 
             // The user logged out successfully, reload page
             $this->appController->ReloadPage();

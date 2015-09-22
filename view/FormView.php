@@ -12,12 +12,14 @@ class FormView {
 	private static $keepInputName = 'LoginView::KeepMeLoggedIn';
 	private static $messageId = 'LoginView::Message';
 
-
     private $users;
+    private $auth;
+    private $exceptions;
 
     // Constructor
-    public function __construct(\model\Users $users, \model\Exceptions $exceptions) {
+    public function __construct(\model\Users $users, \model\Auth $auth, \model\Exceptions $exceptions) {
         $this->users = $users;
+        $this->auth = $auth;
         $this->exceptions = $exceptions;
     }
 
@@ -57,13 +59,25 @@ class FormView {
     }
 
     private function GetLoggedInOutput() {
-        return (\model\Cookies::IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
+        return ($this->auth->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
     }
 
     private function GetTimeOutput() {
 
         return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
     }
+
+
+##############
+
+// Cookie code
+
+
+
+
+
+###############
+
 
 
 // Public methods
@@ -102,7 +116,7 @@ class FormView {
         }
 
         // Get login or logout form output
-        $output .= \model\Cookies::IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
+        $output .= $this->auth->IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
 
         // Get time output
         $output .= $this->GetTimeOutput();

@@ -18,11 +18,14 @@ require_once('controller/LoginController.php');
 require_once('model/Exceptions.php');
 require_once('model/User.php');
 require_once('model/FlashMessage.php');
+require_once('model/Auth.php');
 
 # DAL models
 require_once('model/DAL/DBBase.php');
 require_once('model/DAL/Users.php');
-require_once('model/DAL/Cookies.php');
+
 
 # Create Application controller object
 $app = new \controller\AppController();
+
+

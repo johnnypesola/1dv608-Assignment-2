@@ -12,8 +12,8 @@ namespace model;
 class Users extends DBBase {
 
 // Init variables
-
     private static $DB_TABLE_NAME = 'ass2_user';
+
 
 // Constructor
 
@@ -105,22 +105,6 @@ class Users extends DBBase {
 
         // Check if db insertion was successful
         return $statement->rowCount() == 1;
-    }
-
-    public function Authenticate(\model\User $user) {
-
-        // Assert that the password is in plain text.
-        assert($user->IsPasswordHashed() == false);
-
-        // Get user from database, if user exists
-        $userFromDB = $this->GetUserByUsername($user->GetUserName());
-
-        if($userFromDB) {
-            // Verify password in user object against password in db table row.
-            return password_verify($user->GetPassword(), $userFromDB->GetPassword());
-        }
-
-        return false;
     }
 
 } 

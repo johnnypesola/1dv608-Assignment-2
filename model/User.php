@@ -9,25 +9,54 @@ class User {
     private $userId;
     private $userName;
     private $password;
+    private $token;
+    private $signature;
 
     private $passwordHashed = false;
 
-    private static $USERID_ERROR_MSG = "Invalid user id. It should be numeric and above 0.";
+    private static $USER_ID_ERROR_MSG = "Invalid user id. It should be numeric and above 0.";
 
-    private static $USERNAME_REGEX = '/[^a-z_\-0-9]/i';
-    private static $USERNAME_REGEX_ERROR_MSG = "Invalid username. It should be alpha numeric.";
-    private static $USERNAME_EMPTY_ERROR_MSG = "Username is missing";
-    private static $USERNAME_MAX_LENGTH = 30;
-    private static $USERNAME_MAX_LENGTH_ERROR_MSG = "Username is too long. Max length is 30 chars";
-
-    private static $PASSWORD_REGEX = '/[^a-z_\-0-9]/i';
-    private static $PASSWORD_REGEX_ERROR_MSG = "Invalid password. It should be alpha numeric.";
-    private static $PASSWORD_EMPTY_ERROR_MSG = "Password is missing";
-    private static $PASSWORD_MAX_LENGTH = 30;
-    private static $PASSWORD_MAX_LENGTH_ERROR_MSG = "Password is too long. Max length is 30 chars";
+    private static $STRING_FIELD_CONSTRAINTS = [
+        'USERNAME' => [
+            'REGEX' => '/[^a-z_\-0-9]/i',
+            'REGEX_ERROR_MSG' => "Invalid username. It should be alpha numeric.",
+            'EMPTY_ERROR_MSG' => "Username is missing",
+            'MAX_LENGTH' => 30,
+            'MAX_LENGTH_ERROR_MSG' => "Username is too long. Max length is 30 chars"
+        ],
+        'PASSWORD' => [
+            'REGEX' => '/[^a-z_\-0-9]/i',
+            'REGEX_ERROR_MSG' => "Invalid password. It should be alpha numeric.",
+            'EMPTY_ERROR_MSG' => "Password is missing",
+            'MAX_LENGTH' => 30,
+            'MAX_LENGTH_ERROR_MSG' => "Password is too long. Max length is 30 chars"
+        ],
+        'TOKEN' => [
+            'REGEX' => '/[^a-z_\-0-9]/i',
+            'REGEX_ERROR_MSG' => "Invalid token. It should be alpha numeric.",
+            'EMPTY_ERROR_MSG' => "Token is missing",
+            'MAX_LENGTH' => 255,
+            'MAX_LENGTH_ERROR_MSG' => "Token is too long. Max length is 255 chars"
+        ],
+        'SIGNATURE' => [
+            'REGEX' => '/[^a-z_\-0-9]/i',
+            'REGEX_ERROR_MSG' => "Invalid signature. It should be alpha numeric.",
+            'EMPTY_ERROR_MSG' => "Signature is missing",
+            'MAX_LENGTH' => 255,
+            'MAX_LENGTH_ERROR_MSG' => "Signature is too long. Max length is 255 chars"
+        ]
+    ];
 
 // Constructor
-    public function __construct($id = null, $username, $password = "", $doHashPassword = true, $doCheckPassword = true) {
+    public function __construct(
+        $id = null,
+        $username,
+        $password = "",
+        $doHashPassword = true,
+        $doCheckPassword = true,
+        $token = "",
+        $signature = ""
+    ) {
         $this->SetUserId($id);
         $this->SetUserName($username);
         $this->SetPassword($password, $doHashPassword, $doCheckPassword);
@@ -39,22 +68,24 @@ class User {
     public function SetUserId($value) {
 
         // Check if user id is valid
-        if($this->IsValidUserId($value)) {
+        if(is_null($value) || is_numeric($value) && $value > 0) {
 
             // Set user id
             $this->userId = (int) $value;
+        } else {
+            throw new \Exception(self::$USER_ID_ERROR_MSG);
         }
     }
 
     public function GetUserId() {
-        return $this->userName;
+        return $this->userId;
     }
 
     # Username
     public function SetUserName($value) {
 
         // Check if username is valid
-        if($this->IsValidUsername($value)) {
+        if($this->IsValidString('USERNAME', $value)) {
 
             // Set username
             $this->userName = trim($value);
@@ -69,7 +100,7 @@ class User {
     public function SetPassword($value, $doHashPassword = true, $doCheckPassword = true) {
 
         // Check if password is valid
-        if(!$doCheckPassword || $this->IsValidPassword($value)) {
+        if(!$doCheckPassword || $this->IsValidString('PASSWORD', $value)) {
 
             // Set password
             if($doHashPassword) {
@@ -85,53 +116,54 @@ class User {
         return $this->password;
     }
 
-// Private methods
-
-    private function IsValidUserId($id) {
-
-        // Check if username is empty
-        if(!is_null($id) && trim(strlen($id)) == 0 || !is_null($id) && !is_numeric($id)) {
-            throw new \Exception(self::$USERID_ERROR_MSG);
-        }
-
-        return true;
-    }
-
-    private function IsValidUsername($username) {
-
-        // Check if username is empty
-        if(trim(strlen($username)) == 0) {
-            throw new \Exception(self::$USERNAME_EMPTY_ERROR_MSG);
-        }
+    # Token
+    public function SetToken($value) {
 
         // Check if username is valid
-        if(preg_match(self::$USERNAME_REGEX, $username)) {
-            throw new \Exception(self::$USERNAME_REGEX_ERROR_MSG);
-        }
+        if($this->IsValidString('TOKEN', $value)) {
 
-        // Check that username is not too long
-        if(strlen($username) > self::$USERNAME_MAX_LENGTH) {
-            throw new \Exception(self::$USERNAME_MAX_LENGTH_ERROR_MSG);
+            // Set username
+            $this->token = trim($value);
         }
-
-        return true;
     }
 
-    private function IsValidPassword($password) {
+    public function GetToken() {
+        return $this->token;
+    }
 
-        // Check if password is empty
-        if(trim(strlen($password)) == 0) {
-            throw new \Exception(self::$PASSWORD_EMPTY_ERROR_MSG);
+    # Signature
+    public function SetSignature($value) {
+
+        // Check if username is valid
+        if($this->IsValidString('SIGNATURE', $value)) {
+
+            // Set username
+            $this->signature = trim($value);
+        }
+    }
+
+    public function GetSignature() {
+        return $this->signature;
+    }
+
+
+// Private methods
+
+    private function IsValidString($type, $value) {
+
+        // Check if value is empty
+        if(trim(strlen($value)) == 0) {
+            throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']);
         }
 
-        // Check if password is valid
-        if(preg_match(self::$PASSWORD_REGEX, $password)) {
-            throw new \Exception(self::$PASSWORD_REGEX_ERROR_MSG);
+        // Check if value is valid
+        if(preg_match(self::$STRING_FIELD_CONSTRAINTS[$type]['REGEX'], $value)) {
+            throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['REGEX_ERROR_MSG']);
         }
 
-        // Check that username is not too long
-        if(strlen($password) > self::$PASSWORD_MAX_LENGTH) {
-            throw new \Exception(self::$PASSWORD_MAX_LENGTH_ERROR_MSG);
+        // Check that value is not too long
+        if(strlen($value) > self::$STRING_FIELD_CONSTRAINTS[$type]['MAX_LENGTH']) {
+            throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['MAX_LENGTH_ERROR_MSG']);
         }
 
         return true;
