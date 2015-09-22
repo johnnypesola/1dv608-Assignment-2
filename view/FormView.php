@@ -8,11 +8,11 @@ class FormView {
 	private static $USERNAME_INPUT_NAME = 'LoginView::UserName';
 	private static $PASSWORD_INPUT_NAME = 'LoginView::Password';
 	private static $COOKIE_INPUT_NAME = 'LoginView::CookieName';
-	private static $COOKIE_PASSWORD = 'LoginView::CookiePassword';
+
 	private static $KEEP_LOGGED_IN_INPUT_NAME = 'LoginView::KeepMeLoggedIn';
 	private static $MESSAGE_ID = 'LoginView::Message';
 
-    private static $COOKIE_ID = 'keep_login';
+    private static $COOKIE_ID = 'LoginView::CookiePassword';
 
     private $users;
     private $auth;
@@ -69,24 +69,13 @@ class FormView {
         return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
     }
 
-
-##############
-
-// Cookie code
-
-
-
-
-
-###############
-
-
-
 // Public methods
 
     public function SetLoggedInMessage() {
 
-        \model\FlashMessage::Set('Welcome');
+        $message = $this->IsLoginSavedOnClient() ? 'Welcome back with cookie' : 'Welcome';
+
+        \model\FlashMessage::Set($message);
     }
 
     public function SetLoggedOutMessage() {
@@ -138,7 +127,7 @@ class FormView {
         );
     }
 
-    public function DoesUserWantsLoginToBeRemembered(){
+    public function DoesUserWantLoginToBeRemembered(){
         return isset($_POST[self::$KEEP_LOGGED_IN_INPUT_NAME]) ? true : false;
     }
 
@@ -169,8 +158,15 @@ class FormView {
         // Assert that cookie exists
         assert($this->IsLoginSavedOnClient());
 
+        $cookieArray = explode(':', $_COOKIE[self::$COOKIE_ID]);
+
+        // Check that cookie is ok
+        if(sizeof($cookieArray) !== 3) {
+            throw new \Exception('Wrong information in cookies');
+        }
+
         // Create correct variables from array
-        list($username, $token, $signature) = explode(':', $_COOKIE[self::$COOKIE_ID]);
+        list($username, $token, $signature) = $cookieArray;
 
         // Return array with data
         return [

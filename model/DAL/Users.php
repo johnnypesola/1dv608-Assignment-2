@@ -110,4 +110,34 @@ class Users extends DBBase {
         return $statement->rowCount() == 1;
     }
 
+    public function AddPersistentLogin(\model\User $user) {
+
+        // Assert that token is hashed
+        assert($user->IsTokenHashed());
+
+        // Assert that user has id
+        assert(is_numeric($user->GetUserId()));
+
+        // Prepare db statement
+        $statement = self::$db->prepare(
+            'UPDATE ' . self::$DB_TABLE_NAME  .
+            ' SET `user_token_hash` = :token' .
+            ' WHERE `user_id` = :userId'
+        );
+
+        // Prepare input array
+        $inputArray = [
+            'userId' => $user->GetUserId(),
+            'token' => $user->GetToken()
+        ];
+
+        // Execute db statement
+        $statement->execute($inputArray);
+
+        echo "<h4>token updated in DB</h4>";
+
+        // Check if db insertion was successful
+        return $statement->rowCount() == 1;
+    }
+
 } 

@@ -37,18 +37,12 @@ class User {
             'REGEX_ERROR_MSG' => "Invalid token. It should be alpha numeric.",
             'MAX_LENGTH' => 255,
             'MAX_LENGTH_ERROR_MSG' => "Token is too long. Max length is 255 chars"
-        ],
-        'SIGNATURE' => [
-            'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Invalid signature. It should be alpha numeric.",
-            'MAX_LENGTH' => 255,
-            'MAX_LENGTH_ERROR_MSG' => "Signature is too long. Max length is 255 chars"
         ]
     ];
 
 // Constructor
     public function __construct(
-        $id = null,
+        $userId = null,
         $username,
         $password = "",
         $doHashPassword = true,
@@ -56,10 +50,11 @@ class User {
         $token = "",
         $doHashToken = true
     ) {
-        $this->SetUserId($id);
+        $this->SetUserId($userId);
         $this->SetUserName($username);
         $this->SetPassword($password, $doHashPassword, $doCheckPassword);
         $this->SetToken($token, $doHashToken);
+        $this->SetSignature();
     }
 
 // Getters and Setters
@@ -137,14 +132,11 @@ class User {
     }
 
     # Signature
-    public function SetSignature($value) {
+    public function SetSignature() {
 
-        // Check if signature is valid
-        if($this->IsValidString('SIGNATURE', $value)) {
+        // Set signature from combining username and token
+        $this->signature = \model\Auth::Hash($this->GetUserName() . $this->GetToken());
 
-            // Set signature
-            $this->signature = trim($value);
-        }
     }
 
     public function GetSignature() {

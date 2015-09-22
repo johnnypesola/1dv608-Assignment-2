@@ -23,84 +23,8 @@ class Auth {
         $this->users = $users;
     }
 
-#############
 
-// Cookie code
-
-    public function auth() {
-
-        // Check if remeber me cookie is present
-        /*
-        if (! isset($_COOKIE["auto"]) || empty($_COOKIE["auto"])) {
-            return false;
-        }
-*/
-
-        // Decode cookie value
-        if (! $cookie = @json_decode($_COOKIE["auto"], true)) {
-            return false;
-        }
-
-        // Check all parameters
-        if (! (isset($cookie['user']) || isset($cookie['token']) || isset($cookie['signature']))) {
-            return false;
-        }
-
-        $var = $cookie['user'] . $cookie['token'];
-
-        // Check Signature
-        if (! $this->verify($var, $cookie['signature'])) {
-            throw new Exception("Cokies has been tampared with");
-        }
-
-        // Check Database
-        $info = $this->db->get($cookie['user']);
-        if (! $info) {
-            return false; // User must have deleted accout
-        }
-
-        // Check User Data
-        if (! $info = json_decode($info, true)) {
-            throw new Exception("User Data corrupted");
-        }
-
-        // Verify Token
-        if ($info['token'] !== $cookie['token']) {
-            throw new Exception("System Hijacked or User use another browser");
-        }
-
-        /**
-         * Important
-         * To make sure the cookie is always change
-         * reset the Token information
-         */
-
-        $this->remember($info['user']);
-        return $info;
-    }
-
-    public function remember($user) {
-        $cookie = [
-            "user" => $user,
-            "token" => $this->getRand(64),
-            "signature" => null
-        ];
-        $cookie['signature'] = $this->Hash($cookie['user'] . $cookie['token']);
-        $encoded = json_encode($cookie);
-
-        // Add User to database
-        $this->db->set($user, $encoded);
-
-        /**
-         * Set Cookies
-         * In production enviroment Use
-         * setcookie("auto", $encoded, time() + $expiration, "/~root/",
-         * "example.com", 1, 1);
-         */
-        setcookie("auto", $encoded); // Sample
-    }
-
-## Done
+// Public methods
 
     public static function Hash($value) {
         return hash_hmac(self::$HASH_ALGORITHM, $value, self::$AUTH_KEY_STRING);
@@ -119,14 +43,9 @@ class Auth {
     }
 
     // Try to generate as random token as possible
-    public function GenerateToken() {
-        return bin2hex(openssl_random_pseudo_bytes(16));
+    public function GenerateToken($length = 16) {
+        return bin2hex(openssl_random_pseudo_bytes($length));
     }
-
-#############
-
-
-// Public methods
 
     public function AuthenticatePersistent(\model\User $user) {
 
@@ -142,11 +61,11 @@ class Auth {
 
         if($userFromDB) {
 
-            // Verify password in user object against password in db table row.
-            return password_verify($user->GetPassword(), $userFromDB->GetPassword());
+            // Verify token in user object against token in db table row.
+            return $this->DoHashesEqual($user->GetToken(), $userFromDB->GetToken());
         }
 
-        return true;
+        return false;
     }
 
     public function Authenticate(\model\User $user) {
@@ -165,7 +84,11 @@ class Auth {
                 // Hash password in user object. Does no need to be in clear text anymore.
                 $user->HashPassword();
 
-                return true;
+                // Add id from DBuser to user
+                $user->SetUserId($userFromDB->GetUserId());
+
+                // Return user from DB
+                return $user;
             }
         }
 
@@ -191,6 +114,10 @@ class Auth {
 
         // Store user object in a session cookie.
         $_SESSION[self::$SESSION_COOKIE_NAME] = $user;
+    }
+
+    public function SaveLoginOnServer(\model\User $user){
+        $this->users->AddPersistentLogin($user);
     }
 
     public function ForgetUserLoggedIn() {

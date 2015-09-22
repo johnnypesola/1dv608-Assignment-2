@@ -38,21 +38,6 @@ class LoginController {
 // Public methods
     public function ProcessLogin() {
 
-/*
-        $username = "Mario";
-
-        $token = $this->auth->GenerateToken();
-
-        $signature = $this->auth->Hash($username . $token);
-
-        echo "here -> " . $signature . $this->auth->AuthenticatePersistent($username, $token, $signature);
-*/
-        //echo $this->auth->verify("fisk", $hashed);
-
-
-
-
-
         // Try to authenticate
         try {
 
@@ -61,25 +46,8 @@ class LoginController {
                 $this->Logout();
             }
 
-            // If login is saved on client
-
-            else if($this->formView->IsLoginSavedOnClient()) {
-
-                $userInfoArray = $this->formView->GetLoginSavedOnClient();
-
-                echo '<pre style="text-align: left;">';
-                print_r($userInfoArray);
-                echo '</pre>';
-
-
-                //$user = new \model\User(NULL, NULL, false, false, false, $userInfoArray[]);
-
-                //$this->auth->AuthenticatePersistent()
-            }
-
-
             // If user wants to login
-            else if($this->formView->UserWantsToLogin()) {
+            else if($this->formView->UserWantsToLogin() && !$this->auth->IsUserLoggedIn()) {
 
                 // Get login attempt
                 $loginAttemptArray = $this->formView->GetLoginAttempt();
@@ -88,31 +56,29 @@ class LoginController {
                 $loginAttemptUser = new \model\User(NULL, $loginAttemptArray['username'], $loginAttemptArray['password'], false);
 
                 // Try to authenticate user
-                if($this->auth->Authenticate($loginAttemptUser)) {
+                if($user = $this->auth->Authenticate($loginAttemptUser)) {
 
-                    // Store logged in user object in sessions cookie
-                    $this->auth->KeepUserLoggedInForSession($loginAttemptUser);
-
-                    // Check if user wants login to be remembered
-                    if($this->formView->DoesUserWantsLoginToBeRemembered()) {
-
-                        // Save login on client
-
-                        print_r($loginAttemptUser);
-
-                        $this->formView->SaveLoginOnClient($loginAttemptUser);
-                    }
-
-                    // Set a login message to be displayed for the user.
-                    $this->formView->SetLoggedInMessage();
-
-                    // The user authenticated successfully, reload page
-                    $this->appController->ReloadPage();
+                    $this->LoginSuccess($user);
 
                 } else {
 
                     // The user was denied access
                     throw new \Exception("Wrong name or password");
+                }
+            }
+
+            // If login is saved on client
+            else if($this->formView->IsLoginSavedOnClient() && !$this->auth->IsUserLoggedIn()) {
+
+                // Get client login info
+                $userInfoArray = $this->formView->GetLoginSavedOnClient();
+
+                $user = new \model\user(NULL, $userInfoArray['username'], NULL, false, false, $userInfoArray['token'], false);
+
+                if($this->auth->AuthenticatePersistent($user)) {
+
+                    $this->LoginSuccess($user);
+
                 }
             }
 
@@ -161,5 +127,25 @@ class LoginController {
 
 // Private methods
 
+    private function LoginSuccess($user) {
+
+        // Store logged in user object in sessions cookie
+        $this->auth->KeepUserLoggedInForSession($user);
+
+        // Check if user wants login to be remembered
+        if($this->formView->DoesUserWantLoginToBeRemembered()) {
+
+            // Save persistent login on server
+            $this->auth->SaveLoginOnServer($user);
+
+            // Save persistent login on client
+            $this->formView->SaveLoginOnClient($user);
+        }
+
+        // Set a login message to be displayed for the user.
+        $this->formView->SetLoggedInMessage();
+
+        $this->appController->ReloadPage();
+    }
 
 } 
