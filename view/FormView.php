@@ -15,6 +15,7 @@ class FormView {
 	private static $MESSAGE_ID = 'LoginView::Message';
 
     private static $COOKIE_ID = 'LoginView::CookiePassword';
+    private static $COOKIE_VALID_DAYS = 30;
 
     private $users;
     private $auth;
@@ -110,8 +111,8 @@ class FormView {
         // Prepare values
         $cookieValues = implode(':', array($user->GetUserName(), $user->GetToken(), $user->GetSignature()));
 
-        // Save values in cookie
-        return setcookie(self::$COOKIE_ID, $cookieValues, time() + 60 * 60 * 24 * 365);
+        // Save values in cookie (expires in 30 days)
+        return setcookie(self::$COOKIE_ID, $cookieValues, time() + 60 * 60 * 24 * self::$COOKIE_VALID_DAYS);
     }
 
     public function DeleteLoginSavedOnClient() {
