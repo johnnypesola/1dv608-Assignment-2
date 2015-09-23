@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-17
- * Time: 15:56
- */
 
 namespace model;
 
@@ -12,7 +6,6 @@ namespace model;
 abstract class DBBase {
 
 // Init variables
-    private static $DB_TABLE_REGEX = '/[^a-z_\-0-9]/i';
 
     private static $DB_SETTINGS = [
         "type" => "mysql",
@@ -23,8 +16,9 @@ abstract class DBBase {
         "host" => "localhost"
     ];
 
+    private static $DB_CONNECT_ERROR = 'Error connecting to database. Please contact page admin.';
+
     protected static $db;
-    private $dbTableName = "";
 
 // Constructor
     public function __construct() {
@@ -35,37 +29,27 @@ abstract class DBBase {
 
 // Getters and Setters
 
-/*
-    protected function SetDBTableName($tableName) {
-
-        // Check if table name is alphanumeric
-        if(preg_match(self::$DB_TABLE_REGEX, $tableName)) {
-            throw new \Exception("Database table name must be alphanumeric.");
-        } else {
-            $this->dbTableName = $tableName;
-        }
-    }
-
-    protected function getDBTableName() {
-        return $this->dbTableName;
-    }
-*/
 
 // Private methods
     private static function SetupDB() {
 
-        // setup DSN string
-        $dsn = self::$DB_SETTINGS['type'] . ':dbname=' . self::$DB_SETTINGS['name'] . ';host=' . self::$DB_SETTINGS['host'];
+        try {
+            // Setup DSN string
+            $dsn = self::$DB_SETTINGS['type'] . ':dbname=' . self::$DB_SETTINGS['name'] . ';host=' . self::$DB_SETTINGS['host'];
 
-        // Connect to an ODBC database using driver invocation
-        self::$db = new \PDO(
-            $dsn,
-            self::$DB_SETTINGS['username'],
-            self::$DB_SETTINGS['password']
-        );
+            // Connect to an ODBC database using driver invocation
+            self::$db = new \PDO(
+                $dsn,
+                self::$DB_SETTINGS['username'],
+                self::$DB_SETTINGS['password']
+            );
 
-        //TODO: Remember to catch PDOException
+            // Set error mode to silent
+            self::$db->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_SILENT);
+
+        } catch (\Exception $exception) {
+            throw new \PDOException(self::$DB_CONNECT_ERROR);
+        }
     }
-
 }
 

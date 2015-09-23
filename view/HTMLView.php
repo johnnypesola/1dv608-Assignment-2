@@ -5,10 +5,12 @@ namespace view;
 
 class HTMLView {
 
+// Init variables
     private $pageTitle = '';
     private $pageCharset = '';
     private $pageHeader = '';
 
+// Constructor
     public function __construct($pageTitle, $pageHeader, $pageCharset = 'utf-8') {
 
         // Set values on object creation
@@ -18,7 +20,7 @@ class HTMLView {
 
     }
 
-// Public methods
+// Public Methods
     public function Render($output) {
 
         // Render page header
@@ -31,7 +33,7 @@ class HTMLView {
         $this->RenderFooter();
     }
 
-    // Private methods
+// Private Methods
     private function RenderHeader() {
         echo '
         <!DOCTYPE html>
@@ -47,16 +49,18 @@ class HTMLView {
 
                 <div class="container" >
         ';
-
-        //' . $this->GetLoggedIn() . '
     }
 
     private function RenderFooter() {
-        /*echo '<p>' . $this->GetTime() . '</p>
+        echo $this->GetTimeOutput() . '
                 </div>
             </body>
         </html>
         ';
-        */
+
+    }
+
+    private function GetTimeOutput() {
+        return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
     }
 }

@@ -3,6 +3,8 @@
 namespace view;
 
 class FormView {
+
+// Init variables
 	private static $LOGIN_INPUT_NAME = 'LoginView::Login';
 	private static $LOGOUT_INPUT_NAME = 'LoginView::Logout';
 	private static $USERNAME_INPUT_NAME = 'LoginView::UserName';
@@ -18,7 +20,7 @@ class FormView {
     private $auth;
     private $exceptions;
 
-    // Constructor
+// Constructor
     public function __construct(\model\Users $users, \model\Auth $auth, \model\Exceptions $exceptions) {
         $this->users = $users;
         $this->auth = $auth;
@@ -61,13 +63,9 @@ class FormView {
     }
 
     private function GetLoggedInOutput() {
-        return ($this->auth->IsUserLoggedIn() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
+        return ($this->auth->IsUserLoggedIn() && !$this->auth->isSessionHijacked() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
     }
 
-    private function GetTimeOutput() {
-
-        return '<p>' . date('l, \t\h\e jS \o\f F Y, \T\h\e \t\i\m\e \i\s H:i:s') . '</p>';
-    }
 
 // Public methods
 
@@ -89,30 +87,6 @@ class FormView {
 
     public function UserWantsToLogout(){
         return (isset($_POST[self::$LOGOUT_INPUT_NAME]));
-    }
-
-    public function GetHTML() {
-
-        $formMessage = '';
-
-        // Get logged in header text
-        $output = $this->GetLoggedInOutput();
-
-        // Get exception messages if there are any.
-        if($this->exceptions->HasExceptions()) {
-            $formMessage =  $this->exceptions->GetLastExceptionMessage();
-        }
-        else if(\model\FlashMessage::DoesExist()){
-            $formMessage = \model\FlashMessage::Get();
-        }
-
-        // Get login or logout form output
-        $output .= $this->auth->IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
-
-        // Get time output
-        $output .= $this->GetTimeOutput();
-
-        return $output;
     }
 
     public function GetLoginAttempt() {
@@ -174,5 +148,26 @@ class FormView {
             "token" => $token,
             "signature" => $signature
         ];
+    }
+
+    public function GetHTML() {
+
+        $formMessage = '';
+
+        // Get logged in header text
+        $output = $this->GetLoggedInOutput();
+
+        // Get exception messages if there are any.
+        if($this->exceptions->HasExceptions()) {
+            $formMessage =  $this->exceptions->GetLastExceptionMessage();
+        }
+        else if(\model\FlashMessage::DoesExist()){
+            $formMessage = \model\FlashMessage::Get();
+        }
+
+        // Get login or logout form output
+        $output .= $this->auth->IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
+
+        return $output;
     }
 }

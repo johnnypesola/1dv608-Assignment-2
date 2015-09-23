@@ -114,10 +114,15 @@ class User {
     # Token
     public function SetToken($value, $doHashToken = true) {
 
+        // If token is empty
+        if(strlen($value) <=1) {
+            $value = \model\Auth::GenerateToken();
+        }
+
         // Check if token is valid
         if($this->IsValidString('TOKEN', $value)) {
 
-            // Set token
+            // Hash token
             if($doHashToken) {
                 $this->token = \model\Auth::Hash($value);
                 $this->tokenHashed = true;
@@ -144,7 +149,7 @@ class User {
     }
 
 
-// Private methods
+// Private Methods
 
     private function IsValidString($type, $value) {
 
@@ -166,7 +171,7 @@ class User {
         return true;
     }
 
-// Public methods
+// Public Methods
     public function IsPasswordHashed() {
         return $this->passwordHashed;
     }

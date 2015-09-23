@@ -1,19 +1,15 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-20
- * Time: 18:35
- */
 
 namespace model;
 
 
 abstract class FlashMessage {
 
-    // Init variables
+// Init variables
     private static $SESSION_COOKIE_NAME = 'flash_message';
 
+
+// Public Methods
     static public function DoesExist(){
         return isset($_SESSION[self::$SESSION_COOKIE_NAME]);
     }

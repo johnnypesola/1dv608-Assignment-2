@@ -1,23 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-07
- * Time: 19:58
- */
 
 namespace model;
 
 
 class Exceptions {
 
+// Init variables
     private $exceptions = [];
 
-    // Constructor
-    public function __construct() {
-    }
+// Constructor
 
-    // Methods
+// Getters and Setters
+
+// Private Methods
+
+// Public Methods
     public function AddException(\Exception $exception) {
         $this->exceptions[] = $exception;
     }

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-17
- * Time: 14:51
- */
 
 namespace controller;
 
@@ -23,7 +17,6 @@ abstract class AppBaseController {
 
         // Create HTML view object
         $this->HTMLView = new \view\HTMLView($pageTitle, $pageHeader);
-
     }
 
     public function RedirectTo($fileName) {

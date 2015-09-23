@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-06
- * Time: 20:23
- */
 
 namespace controller;
 
@@ -31,12 +25,16 @@ class LoginController {
         // Create form view object
         $this->formView = new \view\FormView($this->users, $this->auth, $this->appController->exceptions);
 
-        // Process Login
-        $this->ProcessLogin();
+        // If session is not hijacked
+        if(!$this->auth->isSessionHijacked()) {
+
+            // Process Actions
+            $this->ProcessActions();
+        }
     }
 
 // Public methods
-    public function ProcessLogin() {
+    public function ProcessActions() {
 
         // Try to authenticate
         try {
@@ -58,7 +56,7 @@ class LoginController {
                 // Try to authenticate user
                 if($user = $this->auth->Authenticate($loginAttemptUser)) {
 
-                    $this->LoginSuccess($user);
+                    $this->DoLoginSuccess($user);
 
                 } else {
 
@@ -77,10 +75,11 @@ class LoginController {
 
                 if($this->auth->AuthenticatePersistent($user)) {
 
-                    $this->LoginSuccess($user);
+                    $this->DoLoginSuccess($user);
 
                 }
             }
+
 
         } catch (\Exception $exception) {
 
@@ -127,7 +126,7 @@ class LoginController {
 
 // Private methods
 
-    private function LoginSuccess($user) {
+    private function DoLoginSuccess($user) {
 
         // Store logged in user object in sessions cookie
         $this->auth->KeepUserLoggedInForSession($user);

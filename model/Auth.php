@@ -1,21 +1,16 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jopes
- * Date: 2015-09-22
- * Time: 01:29
- */
 
 namespace model;
 
 
 class Auth {
 
-// Init vars
+// Init variables
     private $users;
 
     private static $AUTH_KEY_STRING = "c4ded5a7a71e588270f55a49d47db3d444728fe118162c00730846d3f6e2825f";
-    private static $SESSION_COOKIE_NAME = "user_logged_in";
+    private static $SESSION_LOGGED_IN_USER_COOKIE_NAME = "user_logged_in";
+    private static $SESSION_LOGGED_IN_USER_CLIENT = "user_logged_in_client";
     private static $HASH_ALGORITHM = "sha512";
 
 // Constructor
@@ -23,8 +18,11 @@ class Auth {
         $this->users = $users;
     }
 
+// Getters and Setters
 
-// Public methods
+// Private Methods
+
+// Public Methods
 
     public static function Hash($value) {
         return hash_hmac(self::$HASH_ALGORITHM, $value, self::$AUTH_KEY_STRING);
@@ -43,7 +41,7 @@ class Auth {
     }
 
     // Try to generate as random token as possible
-    public function GenerateToken($length = 16) {
+    public static function GenerateToken($length = 16) {
         return bin2hex(openssl_random_pseudo_bytes($length));
     }
 
@@ -70,6 +68,7 @@ class Auth {
 
     public function Authenticate(\model\User $user) {
 
+
         // Assert that the password is in plain text.
         assert($user->IsPasswordHashed() == false);
 
@@ -87,6 +86,9 @@ class Auth {
                 // Add id from DBuser to user
                 $user->SetUserId($userFromDB->GetUserId());
 
+                // Regenerate session
+                session_regenerate_id(true);
+
                 // Return user from DB
                 return $user;
             }
@@ -102,7 +104,21 @@ class Auth {
             session_start();
         }
 
-        return isset($_SESSION[self::$SESSION_COOKIE_NAME]);
+        return isset($_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME]);
+    }
+
+    public function isSessionHijacked() {
+
+        // Only check if user is logged in
+        if($this->IsUserLoggedIn()) {
+            // Get current user client data
+            $userClient = new \model\UserClient();
+
+            // Check if users client data has changed.
+            return $userClient->GetHash() !== $_SESSION[self::$SESSION_LOGGED_IN_USER_CLIENT]->GetHash();
+        }
+
+        return false;
     }
 
     public function KeepUserLoggedInForSession(\model\User $user) {
@@ -112,8 +128,16 @@ class Auth {
             session_start();
         }
 
-        // Store user object in a session cookie.
-        $_SESSION[self::$SESSION_COOKIE_NAME] = $user;
+
+        // If session data does not exist
+        if(!isset($_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME])) {
+
+            // Store user object in a session cookie.
+            $_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME] = $user;
+
+            // Store user client info in session
+            $_SESSION[self::$SESSION_LOGGED_IN_USER_CLIENT] = new \model\UserClient();
+        }
     }
 
     public function SaveLoginOnServer(\model\User $user){
@@ -121,10 +145,8 @@ class Auth {
     }
 
     public function ForgetUserLoggedIn() {
-        unset($_SESSION[self::$SESSION_COOKIE_NAME]);
+        unset($_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME]);
     }
 
 
-
-// Private methods
 } 
