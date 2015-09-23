@@ -8,4 +8,4 @@ I've done a bit of security related research and implemented general recommendat
 
 In case you find something concerning, please let me know.
 
-/ Johnny Pesola 2015-09-23
+/ Johnny Pesola @ 2015-09-23
