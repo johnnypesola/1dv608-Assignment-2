@@ -13,6 +13,7 @@ class AuthService {
     private static $SESSION_LOGGED_IN_USER_CLIENT = "user_logged_in_client";
     private static $SESSION_LAST_LOGIN_UNAME = "last_login_uname";
     private static $HASH_ALGORITHM = "sha512";
+    private static $MAX_LOGINS_PER_HOUR = 60;
 
 // Constructor
     public function __construct() {
@@ -70,6 +71,10 @@ class AuthService {
     }
 
     public function Authenticate(\model\User $user) {
+
+        if($this->users->GetUserLoginsForHour($user) > self::$MAX_LOGINS_PER_HOUR) {
+            throw new \Exception("Max login attempts for username '" . $user->GetUserName() . "' reached. Please try again in 30-60 minutes.");
+        }
 
         // Assert that the password is in plain text.
         assert($user->IsPasswordHashed() == false);

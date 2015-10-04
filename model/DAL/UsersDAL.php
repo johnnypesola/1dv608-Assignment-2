@@ -17,6 +17,8 @@ class UsersDAL extends DBBase {
     private static $DB_UPDATE_ERROR = 'Error updating user in database';
     private static $DB_USERNAME_EXISTS = 'User exists, pick another username.';
 
+    private static $MAX_REGISTRATIONS_PER_HOUR = 30;
+
 // Constructor
 
 // Public Methods
@@ -111,6 +113,10 @@ class UsersDAL extends DBBase {
 
     public function Add(\model\User $user){
 
+        if($this->GetRegistrationsForHour() > self::$MAX_REGISTRATIONS_PER_HOUR) {
+            throw new \Exception("Max number of registrations per hour reached. Please try again in 30-60 minutes.");
+        }
+
 
         // Throw exception if username is taken
         if($this->GetUserByUsername($user->GetUserName())) {
@@ -122,9 +128,9 @@ class UsersDAL extends DBBase {
             // Prepare db statement
             $statement = self::$db->prepare(
                 'INSERT INTO ' . self::$DB_TABLE_NAME  .
-                '(user_id, user_name, user_password)' .
+                '(user_id, user_name, user_password, date_time)' .
                 ' VALUES ' .
-                '(NULL, :userName, :password)'
+                '(NULL, :userName, :password, NOW())'
             );
 
             // Prepare input array
@@ -185,14 +191,14 @@ class UsersDAL extends DBBase {
             // Prepare db statement
             $statement = self::$db->prepare(
                 'INSERT INTO ' . self::$DB_LOGIN_ATTEMPT_TABLE_NAME  .
-                '(login_id, user_id, date_time)' .
+                '(login_id, user_name, date_time)' .
                 ' VALUES ' .
-                '(NULL, :userId, NOW())'
+                '(NULL, :userName, NOW())'
             );
 
             // Prepare input array
             $inputArray = [
-                'userId' => $user->GetUserId()
+                'userName' => $user->GetUserName()
             ];
 
             // Execute db statement
@@ -204,5 +210,63 @@ class UsersDAL extends DBBase {
         } catch (\Exception $exception) {
             throw new \Exception(self::$DB_LOGIN_ATTEMPT_INSERT_ERROR);
         }
+    }
+
+    public function GetUserLoginsForHour(\model\User $user) {
+
+        try {
+
+            $returnArray = [];
+
+            // Prepare db statement
+            $statement = self::$db->prepare(
+                'SELECT * FROM ' . self::$DB_LOGIN_ATTEMPT_TABLE_NAME .
+                ' WHERE `user_name` = :userName AND ' .
+                ' `date_time` LIKE \'' . date("Y-m-d H") . '%\''
+            );
+
+            // Prepare input array
+            $inputArray = [
+                'userName' => $user->GetUserName()
+            ];
+
+            // Execute db statement
+            $statement->execute($inputArray);
+
+            // Fetch rows
+            $userRowsArray = $statement->fetchAll();
+
+            return sizeOf($userRowsArray);
+
+        } catch (\Exception $exception) {
+            throw new \Exception(self::$DB_QUERY_ERROR);
+        }
+
+    }
+
+    public function GetRegistrationsForHour() {
+
+        try {
+
+            $returnArray = [];
+
+            // Prepare db statement
+            $statement = self::$db->prepare(
+                'SELECT * FROM ' . self::$DB_TABLE_NAME .
+                ' WHERE `date_time` LIKE \'' . date("Y-m-d H") . '%\''
+            );
+
+            // Execute db statement
+            $statement->execute();
+
+            // Fetch rows
+            $userRowsArray = $statement->fetchAll();
+
+            return sizeOf($userRowsArray);
+
+        } catch (\Exception $exception) {
+            throw new \Exception(self::$DB_QUERY_ERROR);
+        }
+
     }
 } 
