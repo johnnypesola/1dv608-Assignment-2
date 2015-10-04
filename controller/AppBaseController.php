@@ -5,15 +5,13 @@ namespace controller;
 
 abstract class AppBaseController {
 
-    public $HTMLView;
-    public $exceptions;
-    protected $mainController;
+    public  $HTMLView, $exceptions;
     protected $mainAppUrl;
 
     protected function Setup($pageTitle, $pageHeader) {
 
         // Create error model object
-        $this->exceptions = new \model\Exceptions();
+        $this->exceptions = new \model\ExceptionsService();
 
         // Create HTML view object
         $this->HTMLView = new \view\HTMLView($pageTitle, $pageHeader);

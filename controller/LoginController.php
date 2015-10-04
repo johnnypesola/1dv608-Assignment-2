@@ -5,25 +5,20 @@ namespace controller;
 class LoginController {
 
 // Init variables
-    private $users;
-    private $auth;
-    private $appController;
+    private $appController, $auth;
     public $formView;
 
 // Constructor
-    public function __construct($appController) {
+    public function __construct($appController, $auth) {
 
         // Store Application controller reference
         $this->appController = $appController;
 
-        // Create users model
-        $this->users = new \model\Users();
-
-        // Create auth model
-        $this->auth = new \model\Auth($this->users);
+        // Store auth model reference
+        $this->auth = $auth;
 
         // Create form view object
-        $this->formView = new \view\FormView($this->users, $this->auth, $this->appController->exceptions);
+        $this->formView = new \view\FormView($this->auth, $this->appController->exceptions);
 
         // If session is not hijacked
         if(!$this->auth->isSessionHijacked()) {
@@ -79,8 +74,6 @@ class LoginController {
 
                 }
             }
-
-
         } catch (\Exception $exception) {
 
             // Store exceptions in applications exceptions container model
@@ -98,11 +91,6 @@ class LoginController {
 
         // Only logout user if logged in
         if($this->auth->IsUserLoggedIn()) {
-
-            // Start session if its not already started
-            if (session_status() == PHP_SESSION_NONE) {
-                session_start();
-            }
 
             // Set a logout message to be displayed for the user.
             $this->formView->SetLoggedOutMessage();

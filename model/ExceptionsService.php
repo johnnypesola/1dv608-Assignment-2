@@ -3,7 +3,7 @@
 namespace model;
 
 
-class Exceptions {
+class ExceptionsService {
 
 // Init variables
     private $exceptions = [];

@@ -3,7 +3,7 @@
 namespace model;
 
 
-class Auth {
+class AuthService {
 
 // Init variables
     private $users;
@@ -14,8 +14,10 @@ class Auth {
     private static $HASH_ALGORITHM = "sha512";
 
 // Constructor
-    public function __construct(\model\Users $users) {
-        $this->users = $users;
+    public function __construct() {
+
+        // Create users model
+        $this->users = new \model\UsersDAL();
     }
 
 // Getters and Setters
@@ -112,7 +114,7 @@ class Auth {
         // Only check if user is logged in
         if($this->IsUserLoggedIn()) {
             // Get current user client data
-            $userClient = new \model\UserClient();
+            $userClient = new \model\UserClientService();
 
             // Check if users client data has changed.
             return $userClient->GetHash() !== $_SESSION[self::$SESSION_LOGGED_IN_USER_CLIENT]->GetHash();
@@ -136,7 +138,7 @@ class Auth {
             $_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME] = $user;
 
             // Store user client info in session
-            $_SESSION[self::$SESSION_LOGGED_IN_USER_CLIENT] = new \model\UserClient();
+            $_SESSION[self::$SESSION_LOGGED_IN_USER_CLIENT] = new \model\UserClientService();
         }
     }
 

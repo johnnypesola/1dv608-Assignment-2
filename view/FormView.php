@@ -22,8 +22,7 @@ class FormView {
     private $exceptions;
 
 // Constructor
-    public function __construct(\model\Users $users, \model\Auth $auth, \model\Exceptions $exceptions) {
-        $this->users = $users;
+    public function __construct(\model\AuthService $auth, \model\ExceptionsService $exceptions) {
         $this->auth = $auth;
         $this->exceptions = $exceptions;
     }
@@ -63,23 +62,18 @@ class FormView {
         return isset($_POST[self::$USERNAME_INPUT_NAME]) ? $_POST[self::$USERNAME_INPUT_NAME] : '';
     }
 
-    private function GetLoggedInOutput() {
-        return ($this->auth->IsUserLoggedIn() && !$this->auth->isSessionHijacked() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
-    }
-
-
 // Public methods
 
     public function SetLoggedInMessage() {
 
         $message = $this->IsLoginSavedOnClient() ? 'Welcome back with cookie' : 'Welcome';
 
-        \model\FlashMessage::Set($message);
+        \model\FlashMessageService::Set($message);
     }
 
     public function SetLoggedOutMessage() {
 
-        \model\FlashMessage::Set('Bye bye!');
+        \model\FlashMessageService::Set('Bye bye!');
     }
 
     public function UserWantsToLogin() {
@@ -154,16 +148,14 @@ class FormView {
     public function GetHTML() {
 
         $formMessage = '';
-
-        // Get logged in header text
-        $output = $this->GetLoggedInOutput();
+        $output = '';
 
         // Get exception messages if there are any.
         if($this->exceptions->HasExceptions()) {
             $formMessage =  $this->exceptions->GetLastExceptionMessage();
         }
-        else if(\model\FlashMessage::DoesExist()){
-            $formMessage = \model\FlashMessage::Get();
+        else if(\model\FlashMessageService::DoesExist()){
+            $formMessage = \model\FlashMessageService::Get();
         }
 
         // Get login or logout form output

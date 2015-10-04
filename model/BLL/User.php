@@ -116,7 +116,7 @@ class User {
 
         // If token is empty
         if(strlen($value) <=1) {
-            $value = \model\Auth::GenerateToken();
+            $value = \model\AuthService::GenerateToken();
         }
 
         // Check if token is valid
@@ -124,7 +124,7 @@ class User {
 
             // Hash token
             if($doHashToken) {
-                $this->token = \model\Auth::Hash($value);
+                $this->token = \model\AuthService::Hash($value);
                 $this->tokenHashed = true;
             } else {
                 $this->token = trim($value);
@@ -140,7 +140,7 @@ class User {
     public function SetSignature() {
 
         // Set signature from combining username and token
-        $this->signature = \model\Auth::Hash($this->GetUserName() . $this->GetToken());
+        $this->signature = \model\AuthService::Hash($this->GetUserName() . $this->GetToken());
 
     }
 

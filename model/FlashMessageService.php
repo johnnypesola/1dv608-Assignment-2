@@ -3,7 +3,7 @@
 namespace model;
 
 
-abstract class FlashMessage {
+abstract class FlashMessageService {
 
 // Init variables
     private static $SESSION_COOKIE_NAME = 'flash_message';

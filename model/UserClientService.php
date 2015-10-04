@@ -3,7 +3,7 @@
 namespace model;
 
 
-class UserClient {
+class UserClientService {
 
 // Init variables
     private $userAgent = '';
@@ -34,6 +34,6 @@ class UserClient {
     }
 
     public function GetHash(){
-        return \model\Auth::Hash($this->ip . $this->userAgent);
+        return \model\AuthService::Hash($this->ip . $this->userAgent);
     }
 } 
