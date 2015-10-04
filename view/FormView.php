@@ -17,32 +17,29 @@ class FormView {
     private static $COOKIE_ID = 'LoginView::CookiePassword';
     private static $COOKIE_VALID_DAYS = 30;
 
-    private $users;
     private $auth;
-    private $exceptions;
 
 // Constructor
-    public function __construct(\model\AuthService $auth, \model\ExceptionsService $exceptions) {
+    public function __construct(\model\AuthService $auth) {
         $this->auth = $auth;
-        $this->exceptions = $exceptions;
     }
 
 // Private methods
 
-	private function GetLogoutFormOutput($message) {
+	private function GetLogoutFormOutput($messageToUser) {
 		return '
 			<form method="post" >
-				<p id="' . self::$MESSAGE_ID . '">' . $message .'</p>
+				<p id="' . self::$MESSAGE_ID . '">' . $messageToUser .'</p>
 				<input type="submit" name="' . self::$LOGOUT_INPUT_NAME . '" value="logout"/>
 			</form>
 		';
 	}
 	
-	private function GetLoginFormOutput($message) {
+	private function GetLoginFormOutput($messageToUser) {
 		return '<form method="post">
 				<fieldset>
 					<legend>Login - enter Username and password</legend>
-					<p id="' . self::$MESSAGE_ID . '">' . $message . '</p>
+					<p id="' . self::$MESSAGE_ID . '">' . $messageToUser . '</p>
 					<label for="' . self::$USERNAME_INPUT_NAME . '">Username :</label>
 					<input type="text" id="' . self::$USERNAME_INPUT_NAME . '" name="' . self::$USERNAME_INPUT_NAME . '" value="' . $this->GetLastLoginAttemptUsername() . '" />
 
@@ -77,7 +74,7 @@ class FormView {
     }
 
     public function UserWantsToLogin() {
-        return isset($_POST[self::$USERNAME_INPUT_NAME]) && isset($_POST[self::$USERNAME_INPUT_NAME]);
+        return isset($_POST[self::$USERNAME_INPUT_NAME]) && isset($_POST[self::$PASSWORD_INPUT_NAME]);
     }
 
     public function UserWantsToLogout(){
@@ -147,20 +144,18 @@ class FormView {
 
     public function GetHTML() {
 
-        $formMessage = '';
-        $output = '';
+        $messageToUser = '';
 
         // Get exception messages if there are any.
-        if($this->exceptions->HasExceptions()) {
-            $formMessage =  $this->exceptions->GetLastExceptionMessage();
+        if(\model\ExceptionsService::HasExceptions()) {
+            $messageToUser =  \model\ExceptionsService::GetLastExceptionMessage();
         }
+        // Get flash messages if there are any
         else if(\model\FlashMessageService::DoesExist()){
-            $formMessage = \model\FlashMessageService::Get();
+            $messageToUser = \model\FlashMessageService::Get();
         }
 
         // Get login or logout form output
-        $output .= $this->auth->IsUserLoggedIn() ? $this->GetLogoutFormOutput($formMessage) : $this->GetLoginFormOutput($formMessage);
-
-        return $output;
+        return $this->auth->IsUserLoggedIn() ? $this->GetLogoutFormOutput($messageToUser) : $this->GetLoginFormOutput($messageToUser);
     }
 }

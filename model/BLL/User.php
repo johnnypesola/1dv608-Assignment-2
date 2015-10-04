@@ -20,14 +20,14 @@ class User {
     private static $STRING_FIELD_CONSTRAINTS = [
         'USERNAME' => [
             'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Invalid username. It should be alpha numeric.",
+            'REGEX_ERROR_MSG' => "Username contains invalid characters.",
             'EMPTY_ERROR_MSG' => "Username is missing",
             'MAX_LENGTH' => 30,
             'MAX_LENGTH_ERROR_MSG' => "Username is too long. Max length is 30 chars"
         ],
         'PASSWORD' => [
             'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Invalid password. It should be alpha numeric.",
+            'REGEX_ERROR_MSG' => "Password contains invalid characters.",
             'EMPTY_ERROR_MSG' => "Password is missing",
             'MAX_LENGTH' => 30,
             'MAX_LENGTH_ERROR_MSG' => "Password is too long. Max length is 30 chars"

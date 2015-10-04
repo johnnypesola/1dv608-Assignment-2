@@ -101,11 +101,6 @@ class AuthService {
 
     public function IsUserLoggedIn() {
 
-        // Start session if its not already started
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
-
         return isset($_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME]);
     }
 

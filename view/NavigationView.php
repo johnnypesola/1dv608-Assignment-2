@@ -2,12 +2,18 @@
 
 namespace view;
 
-
 class NavigationView {
 
+
+// Init variables
     private $appController, $auth;
 
-    // Constructor
+    private static $menuArray = [
+        'Back to login' => '',
+        'Register a new user' => '?register'
+    ];
+
+// Constructor
     public function __construct($appController, $auth) {
 
         // Store Application controller reference
@@ -17,7 +23,7 @@ class NavigationView {
         $this->auth = $auth;
     }
 
-    // Private methods
+// Private methods
     private function GetNavigationLinkOutput() {
 
         if($this->UserWantsToRegister()) {
@@ -31,7 +37,7 @@ class NavigationView {
         return ($this->auth->IsUserLoggedIn() && !$this->auth->isSessionHijacked() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
     }
 
-    // Public methods
+// Public methods
     public function UserWantsToRegister() {
 
         return isset($_GET['register']);

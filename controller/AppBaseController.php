@@ -10,16 +10,19 @@ abstract class AppBaseController {
 
     protected function Setup($pageTitle, $pageHeader) {
 
-        // Create error model object
-        $this->exceptions = new \model\ExceptionsService();
-
         // Create HTML view object
         $this->HTMLView = new \view\HTMLView($pageTitle, $pageHeader);
+
+        // Start session if its not already started
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
     }
 
     public function RedirectTo($fileName) {
 
         header('Location: ' . $this->mainAppUrl . '/' . $fileName);
+        die();
     }
 
     public function ReloadPage() {

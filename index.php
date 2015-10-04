@@ -19,6 +19,7 @@ require_once('controller/RegistrationController.php');
 
 # Model BLL
 require_once('model/BLL/User.php');
+require_once('model/BLL/UserRegistration.php');
 
 # Model DAL
 require_once('model/DAL/DBBase.php');
@@ -27,6 +28,7 @@ require_once('model/DAL/UsersDAL.php');
 # Model services
 require_once('model/ExceptionsService.php');
 require_once('model/FlashMessageService.php');
+require_once('model/ValidationService.php');
 require_once('model/AuthService.php');
 require_once('model/UserClientService.php');
 

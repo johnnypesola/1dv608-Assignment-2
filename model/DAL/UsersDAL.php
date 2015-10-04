@@ -13,7 +13,7 @@ class UsersDAL extends DBBase {
     private static $DB_GET_ERROR = 'Error getting user from database';
     private static $DB_INSERT_ERROR = 'Error adding user to database';
     private static $DB_UPDATE_ERROR = 'Error updating user in database';
-
+    private static $DB_USERNAME_EXISTS = 'User exists, pick another username.';
 
 // Constructor
 
@@ -107,6 +107,13 @@ class UsersDAL extends DBBase {
     }
 
     public function Add(\model\User $user){
+
+
+        // Throw exception if username is taken
+        if($this->GetUserByUsername($user->GetUserName())) {
+
+            throw new \Exception(self::$DB_USERNAME_EXISTS);
+        }
 
         try {
             // Prepare db statement

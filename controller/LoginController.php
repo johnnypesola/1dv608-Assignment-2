@@ -18,7 +18,7 @@ class LoginController {
         $this->auth = $auth;
 
         // Create form view object
-        $this->formView = new \view\FormView($this->auth, $this->appController->exceptions);
+        $this->formView = new \view\FormView($this->auth);
 
         // If session is not hijacked
         if(!$this->auth->isSessionHijacked()) {
@@ -77,7 +77,7 @@ class LoginController {
         } catch (\Exception $exception) {
 
             // Store exceptions in applications exceptions container model
-            $this->appController->exceptions->AddException($exception);
+            \Model\ExceptionsService::AddException($exception);
         }
 
         // Return login failure
