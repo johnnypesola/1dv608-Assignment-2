@@ -11,6 +11,7 @@ class AuthService {
     private static $AUTH_KEY_STRING = "c4ded5a7a71e588270f55a49d47db3d444728fe118162c00730846d3f6e2825f";
     private static $SESSION_LOGGED_IN_USER_COOKIE_NAME = "user_logged_in";
     private static $SESSION_LOGGED_IN_USER_CLIENT = "user_logged_in_client";
+    private static $SESSION_LAST_LOGIN_UNAME = "last_login_uname";
     private static $HASH_ALGORITHM = "sha512";
 
 // Constructor
@@ -70,9 +71,11 @@ class AuthService {
 
     public function Authenticate(\model\User $user) {
 
-
         // Assert that the password is in plain text.
         assert($user->IsPasswordHashed() == false);
+
+        // Log this login attempt in DAL
+        $this->users->AddLoginAttempt($user);
 
         // Get user from database, if user exists
         $userFromDB = $this->users->GetUserByUsername($user->GetUserName());
@@ -145,5 +148,20 @@ class AuthService {
         unset($_SESSION[self::$SESSION_LOGGED_IN_USER_COOKIE_NAME]);
     }
 
+    public function SetLoginUsername(\model\User $user) {
+        $_SESSION['last_login_uname'] = $user->GetUserName();
+    }
+
+    public function GetLoginUsername() {
+
+        if(isset($_SESSION[self::$SESSION_LAST_LOGIN_UNAME])) {
+
+            $returnValue = $_SESSION[self::$SESSION_LAST_LOGIN_UNAME];
+
+            unset($_SESSION[self::$SESSION_LAST_LOGIN_UNAME]);
+
+            return $returnValue;
+        }
+    }
 
 } 

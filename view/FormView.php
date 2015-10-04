@@ -57,14 +57,13 @@ class FormView {
 
     private function GetLastLoginAttemptUsername() {
 
-        if(isset($_GET[self::$GET_REGISTRATION_USERNAME]))
-        {
-            // Return registration username if a new user registration was done.
-            return $_GET[self::$GET_REGISTRATION_USERNAME];
-        } else {
-            // Return last username what was used in login attempt.
-            return isset($_POST[self::$USERNAME_INPUT_NAME]) ? $_POST[self::$USERNAME_INPUT_NAME] : '';
+        // Return last username what was used in login POST attempt.
+        if(isset($_POST[self::$USERNAME_INPUT_NAME])) {
+            return $_POST[self::$USERNAME_INPUT_NAME];
         }
+
+        // Return registration username if a new user registration was done.
+        return $this->auth->GetLoginUsername();
     }
 
 // Public methods

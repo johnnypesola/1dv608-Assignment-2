@@ -66,11 +66,6 @@ class RegistrationView {
         );
     }
 
-    public function GetRegistrationCompleteUrlParams() {
-        return '?uname=' . $_POST[self::$USERNAME_INPUT_NAME];
-    }
-
-
     public function GetHTML() {
 
         $messageToUser = '';

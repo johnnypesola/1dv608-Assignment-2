@@ -8,10 +8,12 @@ class UsersDAL extends DBBase {
 
 // Init variables
     private static $DB_TABLE_NAME = 'ass2_user';
+    private static $DB_LOGIN_ATTEMPT_TABLE_NAME = 'ass2_login_attempt';
 
     private static $DB_QUERY_ERROR = 'Error getting users from database';
     private static $DB_GET_ERROR = 'Error getting user from database';
     private static $DB_INSERT_ERROR = 'Error adding user to database';
+    private static $DB_LOGIN_ATTEMPT_INSERT_ERROR = 'Error adding login attempt to database';
     private static $DB_UPDATE_ERROR = 'Error updating user in database';
     private static $DB_USERNAME_EXISTS = 'User exists, pick another username.';
 
@@ -177,4 +179,30 @@ class UsersDAL extends DBBase {
         }
     }
 
+    public function AddLoginAttempt(\model\User $user) {
+
+        try {
+            // Prepare db statement
+            $statement = self::$db->prepare(
+                'INSERT INTO ' . self::$DB_LOGIN_ATTEMPT_TABLE_NAME  .
+                '(login_id, user_id, date_time)' .
+                ' VALUES ' .
+                '(NULL, :userId, NOW())'
+            );
+
+            // Prepare input array
+            $inputArray = [
+                'userId' => $user->GetUserId()
+            ];
+
+            // Execute db statement
+            $statement->execute($inputArray);
+
+            // Check if db insertion was successful
+            return $statement->rowCount() == 1;
+
+        } catch (\Exception $exception) {
+            throw new \Exception(self::$DB_LOGIN_ATTEMPT_INSERT_ERROR);
+        }
+    }
 } 

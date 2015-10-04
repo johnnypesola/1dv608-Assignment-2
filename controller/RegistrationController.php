@@ -64,8 +64,11 @@ class RegistrationController {
                     // Set new message to display for user.
                     \model\FlashMessageService::Set('Registered new user.');
 
+                    // Store last login uname for login page
+                    $this->auth->SetLoginUsername($newUser);
+
                     // New user registered successfully. Redirect to login page
-                    $this->appController->RedirectTo($this->registrationView->GetRegistrationCompleteUrlParams());
+                    $this->appController->ReloadPage();
                 }
             }
 
