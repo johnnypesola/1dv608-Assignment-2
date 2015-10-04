@@ -13,6 +13,7 @@ class AppController extends AppBaseController {
 
         // Setup application
         $this->Setup('Login Example', 'Assignment 2');
+        $this->MainAppUrl = "http://www.pesola.se/webbprogrammerare/1dv608/assignment2/";
 
         // Create auth service model
         $this->auth = new \model\AuthService();
@@ -23,7 +24,7 @@ class AppController extends AppBaseController {
         // Create main controller objects, depending on what user wants to see.
         if($this->navigationView->UserWantsToRegister())
         {
-            $this->mainController = new\controller\RegistrationController($this, $this->auth);
+            $this->mainController = new \controller\RegistrationController($this, $this->auth);
         } else {
             $this->mainController = new \controller\LoginController($this, $this->auth);
         }

@@ -3,29 +3,27 @@
 namespace model;
 
 
-class UserRegistration {
+class UserRegistration extends BLLBase {
 
 // Init variables
     private $userName;
     private $password;
 
-    private static $STRING_FIELD_CONSTRAINTS = [
-        'USERNAME' => [
-            'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Username contains invalid characters.",
-            'EMPTY_ERROR_MSG' => "Username has too few characters, at least 3 characters.",
-            'MIN_LENGTH' => 3,
-            'MAX_LENGTH' => 30,
-            'MAX_LENGTH_ERROR_MSG' => "Username is too long. Max length is 30 chars"
+    private static $constraints = [
+        'username' => [
+            'regexMsg' => "Username contains invalid characters.",
+            'emptyMsg' => "Username has too few characters, at least 3 characters.",
+            'minLength' => 3,
+            'maxLength' => 30,
+            'maxMsg' => "Username is too long. Max length is 30 characters."
         ],
-        'PASSWORD' => [
-            'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Password contains invalid characters.",
-            'EMPTY_ERROR_MSG' => "Password has too few characters, at least 6 characters.",
-            'MIN_LENGTH' => 6,
-            'MAX_LENGTH' => 30,
-            'MAX_LENGTH_ERROR_MSG' => "Password is too long. Max length is 30 chars",
-            'DO_NOT_MATCH' => "Passwords do not match."
+        'password' => [
+            'regexMsg' => "Password contains invalid characters.",
+            'emptyMsg' => "Password has too few characters, at least 6 characters.",
+            'minLength' => 6,
+            'maxLength' => 30,
+            'maxMsg' => "Password is too long. Max length is 30 characters.",
+            'doNotMatchMsg' => "Passwords do not match."
         ]
     ];
 
@@ -45,7 +43,7 @@ class UserRegistration {
     public function SetUserName($value) {
 
         // Check if username is valid
-        if($this->IsValidString('USERNAME', $value)) {
+        if($this->IsValidString("Username", $value, self::$constraints["username"])) {
 
             // Set username
             $this->userName = trim($value);
@@ -65,13 +63,13 @@ class UserRegistration {
 
         // Check if passwords match
         if($value != $repeatValue) {
-            ValidationService::AddValidationError(self::$STRING_FIELD_CONSTRAINTS['PASSWORD']['DO_NOT_MATCH']);
+            ValidationService::AddValidationError(self::$constraints['password']['doNotMatchMsg']);
 
             return false;
         }
 
         // Check if password is valid
-        if($this->IsValidString('PASSWORD', $value)) {
+        if ($this->IsValidString("Password", $value, self::$constraints["password"])) {
 
             // Set password
             $this->password = trim($value);
@@ -89,32 +87,4 @@ class UserRegistration {
 
 // Private Methods
 
-    private function IsValidString($type, $value) {
-
-        // Check if value is too short
-        if(
-            isset(self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']) &&
-            trim(strlen($value)) < self::$STRING_FIELD_CONSTRAINTS[$type]['MIN_LENGTH']
-        ) {
-            ValidationService::AddValidationError(
-                self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']
-            );
-        }
-
-        // Check if value is valid
-        if(preg_match(self::$STRING_FIELD_CONSTRAINTS[$type]['REGEX'], $value)) {
-            ValidationService::AddValidationError(
-                self::$STRING_FIELD_CONSTRAINTS[$type]['REGEX_ERROR_MSG']
-            );
-        }
-
-        // Check that value is not too long
-        if(strlen($value) > self::$STRING_FIELD_CONSTRAINTS[$type]['MAX_LENGTH']) {
-            ValidationService::AddValidationError(
-                self::$STRING_FIELD_CONSTRAINTS[$type]['MAX_LENGTH_ERROR_MSG']
-            );
-        }
-
-        return true;
-    }
-} 
+}

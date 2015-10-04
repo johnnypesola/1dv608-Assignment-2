@@ -17,7 +17,7 @@ class RegistrationView {
 
     }
 
-    // Private Methods
+// Private Methods
     private function GetRegisterFormOutput($messageToUser) {
         return '
             <div class="container" >
@@ -43,11 +43,11 @@ class RegistrationView {
         ';
     }
 
-    private function GetLastRegistrationAttemptUsername() {
+    public function GetLastRegistrationAttemptUsername() {
         return isset($_POST[self::$USERNAME_INPUT_NAME]) ? strip_tags($_POST[self::$USERNAME_INPUT_NAME]) : '';
     }
 
-    // Public Methods
+// Public Methods
 
     public function UserWantsToRegister() {
         return isset($_POST[self::$USERNAME_INPUT_NAME]) && isset($_POST[self::$PASSWORD_INPUT_NAME]);
@@ -64,6 +64,10 @@ class RegistrationView {
             'password' => $_POST[self::$PASSWORD_INPUT_NAME],
             'passwordRepeat' => $_POST[self::$PASSWORD_REPEAT_INPUT_NAME]
         );
+    }
+
+    public function GetRegistrationCompleteUrlParams() {
+        return '?uname=' . $_POST[self::$USERNAME_INPUT_NAME];
     }
 
 
@@ -88,11 +92,13 @@ class RegistrationView {
 
         // Get flash messages if there are any
         else if(\model\FlashMessageService::DoesExist()){
-            $messageToUser = \model\FlashMessageService::Get();
+            $messageToUser .= \model\FlashMessageService::Get();
         }
 
         // Get output
         return $this->GetRegisterFormOutput($messageToUser);
     }
+
+
 
 } 

@@ -9,7 +9,7 @@ class FormView {
 	private static $LOGOUT_INPUT_NAME = 'LoginView::Logout';
 	private static $USERNAME_INPUT_NAME = 'LoginView::UserName';
 	private static $PASSWORD_INPUT_NAME = 'LoginView::Password';
-	private static $COOKIE_INPUT_NAME = 'LoginView::CookieName';
+    private static $GET_REGISTRATION_USERNAME = 'uname';
 
 	private static $KEEP_LOGGED_IN_INPUT_NAME = 'LoginView::KeepMeLoggedIn';
 	private static $MESSAGE_ID = 'LoginView::Message';
@@ -56,21 +56,28 @@ class FormView {
 	}
 
     private function GetLastLoginAttemptUsername() {
-        return isset($_POST[self::$USERNAME_INPUT_NAME]) ? $_POST[self::$USERNAME_INPUT_NAME] : '';
+
+        if(isset($_GET[self::$GET_REGISTRATION_USERNAME]))
+        {
+            // Return registration username if a new user registration was done.
+            return $_GET[self::$GET_REGISTRATION_USERNAME];
+        } else {
+            // Return last username what was used in login attempt.
+            return isset($_POST[self::$USERNAME_INPUT_NAME]) ? $_POST[self::$USERNAME_INPUT_NAME] : '';
+        }
     }
 
 // Public methods
 
-    public function SetLoggedInMessage() {
 
-        $message = $this->IsLoginSavedOnClient() ? 'Welcome back with cookie' : 'Welcome';
 
-        \model\FlashMessageService::Set($message);
+    public function GetLoggedInMessage() {
+
+        return $this->IsLoginSavedOnClient() ? 'Welcome back with cookie' : 'Welcome';
     }
 
-    public function SetLoggedOutMessage() {
-
-        \model\FlashMessageService::Set('Bye bye!');
+    public function GetLoggedOutMessage() {
+        return 'Bye bye!';
     }
 
     public function UserWantsToLogin() {
@@ -149,6 +156,13 @@ class FormView {
         // Get exception messages if there are any.
         if(\model\ExceptionsService::HasExceptions()) {
             $messageToUser =  \model\ExceptionsService::GetLastExceptionMessage();
+        }
+        // Get validations errors if there are any
+        else if(!\model\ValidationService::IsValid()) {
+
+            foreach(\model\ValidationService::GetValidationErrors() as $message) {
+                $messageToUser .= $message . "<br>";
+            }
         }
         // Get flash messages if there are any
         else if(\model\FlashMessageService::DoesExist()){

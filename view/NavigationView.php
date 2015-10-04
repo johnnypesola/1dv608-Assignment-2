@@ -2,16 +2,13 @@
 
 namespace view;
 
+use model\MenuItem;
+
 class NavigationView {
 
 
 // Init variables
     private $appController, $auth;
-
-    private static $menuArray = [
-        'Back to login' => '',
-        'Register a new user' => '?register'
-    ];
 
 // Constructor
     public function __construct($appController, $auth) {
@@ -36,6 +33,8 @@ class NavigationView {
     private function GetLoggedInOutput() {
         return ($this->auth->IsUserLoggedIn() && !$this->auth->isSessionHijacked() ? '<h2>Logged in</h2>' : '<h2>Not logged in</h2>');
     }
+
+
 
 // Public methods
     public function UserWantsToRegister() {

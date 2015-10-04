@@ -101,6 +101,7 @@ class UsersDAL extends DBBase {
             return false;
 
         } catch (\Exception $exception) {
+
             throw new \Exception(self::$DB_GET_ERROR);
         }
 

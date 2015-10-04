@@ -18,8 +18,10 @@ require_once('controller/LoginController.php');
 require_once('controller/RegistrationController.php');
 
 # Model BLL
+require_once('model/BLL/BLLBase.php');
 require_once('model/BLL/User.php');
 require_once('model/BLL/UserRegistration.php');
+require_once('model/BLL/MenuItem.php');
 
 # Model DAL
 require_once('model/DAL/DBBase.php');

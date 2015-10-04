@@ -48,15 +48,19 @@ class LoginController {
                 // Create new user from login attempt
                 $loginAttemptUser = new \model\User(NULL, $loginAttemptArray['username'], $loginAttemptArray['password'], false);
 
-                // Try to authenticate user
-                if($user = $this->auth->Authenticate($loginAttemptUser)) {
+                // If there are no validation errors, proceed.
+                if(\model\ValidationService::IsValid()) {
 
-                    $this->DoLoginSuccess($user);
+                    // Try to authenticate user
+                    if ($user = $this->auth->Authenticate($loginAttemptUser)) {
 
-                } else {
+                        $this->DoLoginSuccess($user);
 
-                    // The user was denied access
-                    throw new \Exception("Wrong name or password");
+                    } else {
+
+                        // The user was denied access
+                        throw new \Exception("Wrong name or password");
+                    }
                 }
             }
 
@@ -93,7 +97,7 @@ class LoginController {
         if($this->auth->IsUserLoggedIn()) {
 
             // Set a logout message to be displayed for the user.
-            $this->formView->SetLoggedOutMessage();
+            \model\FlashMessageService::Set($this->formView->GetLoggedOutMessage());
 
             // Clear user login
             $this->auth->ForgetUserLoggedIn();
@@ -130,7 +134,7 @@ class LoginController {
         }
 
         // Set a login message to be displayed for the user.
-        $this->formView->SetLoggedInMessage();
+        \model\FlashMessageService::Set($this->formView->GetLoggedInMessage());
 
         $this->appController->ReloadPage();
     }

@@ -3,7 +3,7 @@
 namespace model;
 
 
-class User {
+class User extends BLLBase {
 
 // Init variables
     private $userId;
@@ -15,29 +15,12 @@ class User {
     private $passwordHashed = false;
     private $tokenHashed = false;
 
-    private static $USER_ID_ERROR_MSG = "Invalid user id. It should be numeric and above 0.";
+    private static $userIdErrorMsg = "Invalid user id. It should be numeric and above 0.";
 
-    private static $STRING_FIELD_CONSTRAINTS = [
-        'USERNAME' => [
-            'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Username contains invalid characters.",
-            'EMPTY_ERROR_MSG' => "Username is missing",
-            'MAX_LENGTH' => 30,
-            'MAX_LENGTH_ERROR_MSG' => "Username is too long. Max length is 30 chars"
-        ],
-        'PASSWORD' => [
-            'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Password contains invalid characters.",
-            'EMPTY_ERROR_MSG' => "Password is missing",
-            'MAX_LENGTH' => 30,
-            'MAX_LENGTH_ERROR_MSG' => "Password is too long. Max length is 30 chars"
-        ],
-        'TOKEN' => [
-            'REGEX' => '/[^a-z_\-0-9]/i',
-            'REGEX_ERROR_MSG' => "Invalid token. It should be alpha numeric.",
-            'MAX_LENGTH' => 255,
-            'MAX_LENGTH_ERROR_MSG' => "Token is too long. Max length is 255 chars"
-        ]
+    private static $constraints = [
+        'username' => ['maxLength' => 30, 'minLength' => 1, 'throwException' => true],
+        'password' => ['maxLength' => 30],
+        'token' => ['maxLength' => 255]
     ];
 
 // Constructor
@@ -68,7 +51,7 @@ class User {
             // Set user id
             $this->userId = (int) $value;
         } else {
-            throw new \Exception(self::$USER_ID_ERROR_MSG);
+            throw new \Exception(self::$userIdErrorMsg);
         }
     }
 
@@ -80,7 +63,7 @@ class User {
     public function SetUserName($value) {
 
         // Check if username is valid
-        if($this->IsValidString('USERNAME', $value)) {
+        if($this->IsValidString("Username", $value, self::$constraints["username"])) {
 
             // Set username
             $this->userName = trim($value);
@@ -95,7 +78,7 @@ class User {
     public function SetPassword($value, $doHashPassword = true, $doCheckPassword = true) {
 
         // Check if password is valid
-        if(!$doCheckPassword || $this->IsValidString('PASSWORD', $value)) {
+        if(!$doCheckPassword || $this->IsValidString("Password", $value, self::$constraints["password"])) {
 
             // Set password
             if($doHashPassword) {
@@ -120,7 +103,7 @@ class User {
         }
 
         // Check if token is valid
-        if($this->IsValidString('TOKEN', $value)) {
+        if($this->IsValidString("Token", $value, self::$constraints["token"])) {
 
             // Hash token
             if($doHashToken) {
@@ -150,26 +133,6 @@ class User {
 
 
 // Private Methods
-
-    private function IsValidString($type, $value) {
-
-        // Check if value is empty
-        if(isset(self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']) && trim(strlen($value)) == 0) {
-            throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['EMPTY_ERROR_MSG']);
-        }
-
-        // Check if value is valid
-        if(preg_match(self::$STRING_FIELD_CONSTRAINTS[$type]['REGEX'], $value)) {
-            throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['REGEX_ERROR_MSG']);
-        }
-
-        // Check that value is not too long
-        if(strlen($value) > self::$STRING_FIELD_CONSTRAINTS[$type]['MAX_LENGTH']) {
-            throw new \Exception(self::$STRING_FIELD_CONSTRAINTS[$type]['MAX_LENGTH_ERROR_MSG']);
-        }
-
-        return true;
-    }
 
 // Public Methods
     public function IsPasswordHashed() {

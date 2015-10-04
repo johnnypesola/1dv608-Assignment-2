@@ -6,7 +6,7 @@ namespace controller;
 abstract class AppBaseController {
 
     public  $HTMLView, $exceptions;
-    protected $mainAppUrl;
+    protected $MainAppUrl;
 
     protected function Setup($pageTitle, $pageHeader) {
 
@@ -21,13 +21,13 @@ abstract class AppBaseController {
 
     public function RedirectTo($fileName) {
 
-        header('Location: ' . $this->mainAppUrl . '/' . $fileName);
+        header('Location: ' . $this->MainAppUrl . $fileName);
         die();
     }
 
     public function ReloadPage() {
 
-        header('Location: ' . $this->mainAppUrl . $_SERVER['SCRIPT_NAME']);
+        header('Location: ' . $_SERVER['SCRIPT_NAME']);
         die();
     }
 }

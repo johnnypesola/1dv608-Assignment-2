@@ -51,20 +51,21 @@ class RegistrationController {
                 // If there are no validation errors, proceed.
                 if(\model\ValidationService::IsValid()) {
 
-                    // Add user in DAL
-                    $this->users->Add(
-                        new \model\User(
-                            null,
-                            $userRegistrationAttempt->GetUserName(),
-                            $userRegistrationAttempt->GetPassword()
-                        )
+                    // Create new user
+                    $newUser = new \model\User(
+                        null,
+                        $userRegistrationAttempt->GetUserName(),
+                        $userRegistrationAttempt->GetPassword()
                     );
+
+                    // Add user in DAL
+                    $this->users->Add($newUser);
 
                     // Set new message to display for user.
                     \model\FlashMessageService::Set('Registered new user.');
 
-                    // New user registered successfully. Reload page
-                    $this->appController->ReloadPage();
+                    // New user registered successfully. Redirect to login page
+                    $this->appController->RedirectTo($this->registrationView->GetRegistrationCompleteUrlParams());
                 }
             }
 

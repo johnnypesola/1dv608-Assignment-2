@@ -70,3 +70,9 @@ h2 {
     width: 400px;
     background: #374562;
 }
+
+a {
+    padding: 7px 14px;
+    background: #FFFFFF;
+    border-radius: 2px;
+}
