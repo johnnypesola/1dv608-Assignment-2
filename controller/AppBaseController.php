@@ -8,10 +8,13 @@ abstract class AppBaseController {
     public  $HTMLView, $exceptions;
     protected $MainAppUrl;
 
-    protected function Setup($pageTitle, $pageHeader) {
+    protected function Setup($pageTitle, $pageHeader, $mainAppUrl) {
 
         // Create HTML view object
         $this->HTMLView = new \view\HTMLView($pageTitle, $pageHeader);
+
+        // Store MainAppURL
+        $this->MainAppUrl = $mainAppUrl;
 
         // Start session if its not already started
         if (session_status() == PHP_SESSION_NONE) {

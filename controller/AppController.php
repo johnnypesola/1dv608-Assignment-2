@@ -12,8 +12,7 @@ class AppController extends AppBaseController {
         $this->output = '';
 
         // Setup application
-        $this->Setup('Login Example', 'Assignment 2');
-        $this->MainAppUrl = "http://www.pesola.se/webbprogrammerare/1dv608/assignment2/";
+        $this->Setup('Login Example', 'Assignment 2', 'http://www.pesola.se/webbprogrammerare/1dv608/assignment2/');
 
         // Create auth service model
         $this->auth = new \model\AuthService();
