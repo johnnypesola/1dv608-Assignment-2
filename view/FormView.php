@@ -9,7 +9,6 @@ class FormView {
 	private static $LOGOUT_INPUT_NAME = 'LoginView::Logout';
 	private static $USERNAME_INPUT_NAME = 'LoginView::UserName';
 	private static $PASSWORD_INPUT_NAME = 'LoginView::Password';
-    private static $GET_REGISTRATION_USERNAME = 'uname';
 
 	private static $KEEP_LOGGED_IN_INPUT_NAME = 'LoginView::KeepMeLoggedIn';
 	private static $MESSAGE_ID = 'LoginView::Message';
@@ -25,7 +24,6 @@ class FormView {
     }
 
 // Private methods
-
 	private function GetLogoutFormOutput($messageToUser) {
 		return '
 			<form method="post" >

@@ -2,7 +2,6 @@
 
 namespace view;
 
-use model\MenuItem;
 
 class NavigationView {
 
