@@ -14,3 +14,7 @@ This is my repository for the login assignment. It uses a mysql database as back
 -  [Test cases 4.1 - 4.10](https://github.com/dntoll/1DV608/blob/master/Assignments/Assignment_4/TestCases.md)
    
 It also has some flooding protection, so thats it's only possible to register a certain number of new users per hour. And also checks that not too many login attempts are made with the same username.
+   
+[Check out the live version.](http://www.pesola.se/webbprogrammerare/1dv608/assignment2/)
+   
+Please do to not submit any sensitive information as it could be stolen. No secure https connection is present at the moment.
