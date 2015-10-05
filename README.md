@@ -1,11 +1,12 @@
 # Assignment 2 Login - PHP course 1DV608 on Linnaeus University
 
-This is my repository for the login assignment.
+This is my repository for the login assignment. It uses a mysql database as backend.
 
-It uses a mysql database as backend.
+It fulfills the following requirements: 
 
-I've done a bit of security related research and implemented general recommendations.
+-  [Requirement specification UC1, UC2, UC3](https://github.com/dntoll/1DV608/blob/master/Assignments/Assignment_2/Assignment2_Use_Cases.md)
+-  [Requirement specification UC4](https://github.com/dntoll/1DV608/blob/master/Assignments/Assignment_4/UC4.md)
 
-In case you find something concerning, please let me know.
-
-/ Johnny Pesola @ 2015-09-23
+It has been tested with the following testcases:
+-  [Test cases 1.1-2.4](https://github.com/dntoll/1DV608/blob/master/Assignments/Assignment_2/Assignment2_Test_Cases_Mandatory.md)
+-  [Test cases 4.1-4.10](https://github.com/dntoll/1DV608/blob/master/Assignments/Assignment_2/Assignment2_Test_Cases_Mandatory.md)
